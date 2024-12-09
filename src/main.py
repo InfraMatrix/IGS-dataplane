@@ -16,7 +16,7 @@
 
 from vm_manager import VMManager
 
-global manager
+global vm_manager
 
 def print_commands():
 
@@ -29,9 +29,9 @@ def print_commands():
 
 def process_command(cmd=""):
 
-    if   (cmd == "1"):
-        print("Creating a VM")
-
+    if (cmd == "1"):
+        vm_manager.create_vm()
+        
     elif (cmd == "2"):
         print("Starting a VM")
 
@@ -62,8 +62,8 @@ def vm_manager_shell():
 
 if __name__ == "__main__":
 
-    manager = VMManager()
+    vm_manager = VMManager()
 
-    manager.connect()
+    vm_manager.connect()
 
     vm_manager_shell()
