@@ -33,7 +33,7 @@ def process_command(cmd=""):
         vm_manager.create_vm()
         
     elif (cmd == "2"):
-        print("Starting a VM")
+        vm_manager.start_vm()
 
     elif (cmd == "3"):
         print("Stopping a VM")
