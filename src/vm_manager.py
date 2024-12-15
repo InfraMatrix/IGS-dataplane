@@ -30,6 +30,7 @@ class VMManager:
 
     def create_vm(self): ...
     def allocate_vm_disk(self, vm_id): ...
+    def copy_image(self, vm_id): ...
     def write_vm_config(self, vm_id): ...
 
     def start_vm(self): ...
@@ -42,6 +43,11 @@ class VMManager:
         self._vm_location = "/compute/vms"
         self._vms     = []
         self._distro_manager = DistroManager()
+
+        for d in os.listdir(f"{self._vm_location}/"):
+
+            self._vms.append(VM(d, f"{self._vm_location}/{d}/{d}.qcow2"))
+
 
     def connect(self):
 
@@ -72,19 +78,42 @@ class VMManager:
         vm_path = f"{vm_uuid}"
 
         os.makedirs(f"{self._vm_location}/{vm_path}")
-
-        self.allocate_vm_disk(vm_uuid)
+        self.copy_vm_image(vm_uuid)
         self.write_vm_config(vm_uuid)
 
         self._vms.append(VM(vm_uuid, vm_path+"/{vm_uuid}.qcow2"))
 
     def start_vm(self):
 
-        print("Input the vm that you want to start:")
+        num_vms = len(self._vms)
 
-        for i in range(1, len(self._vms) + 1):
-            print(f"{i}: {self._vms[i-1].name}")
+        vm_num = -1
+        while (vm_num < 0 or vm_num > num_vms):
 
+            print("Input the vm that you want to start:")
+
+            for i in range(1, len(self._vms) + 1):
+                print(f"{i}: {self._vms[i-1].name}")
+
+            vm_num = int(input(""))
+
+        try:
+
+            run_vm_cmd = [
+
+                "qemu-system-x86_64", "-nographic",
+                "-readconfig", f"{self._vm_location}/{self._vms[vm_num-1].name}/{self._vms[vm_num-1].name}.conf"
+
+            ]
+
+            result = subprocess.run(
+                run_vm_cmd,
+                # Uncomment for testing that vms run
+                #start_new_session = True
+            )
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
 
     def allocate_vm_disk(self, vm_id):
 
@@ -103,32 +132,45 @@ class VMManager:
         except subprocess.CalledProcessError as e:
             print(f"Failed to create disk: {e}")
             return False
-        
+
+    def copy_vm_image(self, vm_id):
+
+        try:
+
+            copy_image_cmd = [
+
+                "qemu-img", "create",
+                "-f", "qcow2",
+                "-b", "/compute/images/ubuntu22.04.qcow2",
+                "-F", "qcow2",
+                f"{self._vm_location}/{vm_id}/{vm_id}.qcow2",
+                "10G"
+
+            ]
+
+            result = subprocess.run(
+                copy_image_cmd,
+                check = True,
+                capture_output = True,
+                text = True
+            )
+
+        except Exception as e:
+            print(f"Failed to create vm disk: {e}")
+
     def write_vm_config(self, vm_id):
 
-        config = f"""[name]
-        guest = "{vm_id}"
+        try:
+            with open("../conf/instances/micro.conf", "r") as cfile:
 
-        [machine]
-        type = "q35"
-        accel = "kvm"
+                content = cfile.read()
 
-        [memory]
-        size = "1G"
+                content = content.replace("GNAME", vm_id)
+                content = content.replace("FPATH", f"/compute/vms/{vm_id}/{vm_id}.qcow2")
 
-        [smp-opts]
-        cpus = "1"
+                with open(f"/compute/vms/{vm_id}/{vm_id}.conf", "w") as fcfile:
 
-        [drive]
-        file = "{self._vm_location}/{vm_id}/{vm_id}.qcow2"
-        format = "qcow2"
+                    fcfile.write(content)
 
-        [drive]
-        media = "cdrom"
-        file = "/compute/isos/ubuntu/ubuntu-22.04.5-live-server-amd64.iso"\n"""
-
-        config = config.replace("        ", "")
-        config = config.replace("\t", "  ")
-
-        with open(f"{self._vm_location}/{vm_id}/{vm_id}.config", 'w') as f:
-            f.write(config)
+        except Exception as e:
+            print(f"Failed to open instance config file: {e}")
