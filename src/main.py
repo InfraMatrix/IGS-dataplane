@@ -26,7 +26,8 @@ def print_commands():
     print("Press 4 to pause a VM")
     print("Press 5 to resume a VM")
     print("Press 6 to delete a VM")
-    print("Press 7 to end the session\n")
+    print("Press 7 to get a VM's status")
+    print("Press 8 to end the session\n")
 
 def process_command(cmd=""):
 
@@ -44,6 +45,9 @@ def process_command(cmd=""):
 
     elif (cmd == "5"):
         vm_manager.resume_vm()
+
+    elif (cmd == "7"):
+        vm_manager.get_vm_status()
 
     else:
         print("Exiting")

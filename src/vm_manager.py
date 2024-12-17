@@ -40,6 +40,8 @@ class VMManager:
     def resume_vm(self): ...
     def pause_vm(self): ...
 
+    def get_vm_status(self): ...
+
     def _send_command_to_vm(self, curr_vm, cmd): ...
 
     def __init__(self):
@@ -49,6 +51,7 @@ class VMManager:
         self._logger = None
         self._vm_location = "/compute/vms"
         self._vms     = []
+        self._live_vms = []
         self._running_vms = []
         self._stopped_vms = []
         self._paused_vms = []
@@ -140,6 +143,7 @@ class VMManager:
 
             print(f"Starting VM: {curr_vm.name}")
 
+            self._live_vms.append(curr_vm)
             self._running_vms.append(curr_vm)
             self._stopped_vms.remove(curr_vm)
 
@@ -232,6 +236,34 @@ class VMManager:
         except Exception as e:
             print(f"Failed to start vm: {e}")
 
+    def get_vm_status(self):
+
+        print("Input the vm that you want to get the status of:")
+
+        num_vms = len(self._live_vms)
+
+        vm_num = -1
+        while (vm_num < 0 or vm_num > num_vms):
+
+            print("Input the vm that you want to start:")
+
+            for i in range(1, len(self._live_vms) + 1):
+                print(f"{i}: {self._live_vms[i-1].name}")
+
+            vm_num = int(input("")) - 1
+
+        curr_vm = self._live_vms[vm_num]
+
+        try:
+
+            status = self._send_command_to_vm(curr_vm, "info status")
+
+
+            print(f"{curr_vm.name}'s status: {status}")
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
+
     def _send_command_to_vm(self, curr_vm, cmd):
 
         sock = curr_vm.hv_conn
@@ -244,6 +276,7 @@ class VMManager:
 
         response = sock.recv(1024).decode()
 
+        return response
 
     def allocate_vm_disk(self, vm_id):
 
