@@ -21,6 +21,7 @@ import uuid
 import subprocess
 import socket
 import time
+import shutil
 
 from distro_manager import DistroManager
 from vm import VM
@@ -31,6 +32,7 @@ class VMManager:
     def connect(self): ...
 
     def create_vm(self): ...
+    def delete_vm(self): ...
     def allocate_vm_disk(self, vm_id): ...
     def copy_image(self, vm_id): ...
     def write_vm_config(self, vm_id): ...
@@ -84,7 +86,6 @@ class VMManager:
     def create_vm(self):
 
         print("Creating a VM\n")
-        print("Downloading Ubuntu distro\n")
 
         self._distro_manager.download_ubuntu_iso()
 
@@ -97,8 +98,46 @@ class VMManager:
 
         new_vm = VM(vm_uuid, vm_path+"/{vm_uuid}.qcow2")
 
+        print(f"Created VM: {vm_uuid}\n")
+
         self._vms.append(new_vm)
         self._stopped_vms.append(new_vm)
+
+    def delete_vm(self):
+        num_vms = len(self._vms)
+
+        vm_num = -1
+        while (vm_num < 0 or vm_num > num_vms):
+
+            print("Input the vm that you want to delete:")
+
+            for i in range(1, len(self._vms) + 1):
+                print(f"{i}: {self._vms[i-1].name}")
+
+            vm_num = int(input("")) - 1
+
+        curr_vm = self._vms[vm_num]
+
+        if (curr_vm in self._paused_vms):
+
+            self._send_command_to_vm(curr_vm, "cont")
+
+            self._running_vms.append(curr_vm)
+            self._stopped_vms.remove(curr_vm)
+            self._paused_vms.remove(curr_vm)
+
+        if (curr_vm in self._running_vms):
+
+            self._send_command_to_vm(curr_vm, "system_powerdown")
+
+            self._stopped_vms.append(curr_vm)
+            self._running_vms.remove(curr_vm)
+
+        shutil.rmtree(f"{self._vm_location}/{curr_vm.name}")
+
+        self._live_vms.remove(curr_vm)
+        self._stopped_vms.remove(curr_vm)
+        self._vms.remove(curr_vm)
 
     def start_vm(self):
 
@@ -135,13 +174,13 @@ class VMManager:
                 stderr=subprocess.DEVNULL,
             )
 
+            print(f"Starting VM: {curr_vm.name}\n")
+
             time.sleep(2.5)
 
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.connect(f"/tmp/{curr_vm.name}.sock")
             curr_vm.hv_conn = sock
-
-            print(f"Starting VM: {curr_vm.name}")
 
             self._live_vms.append(curr_vm)
             self._running_vms.append(curr_vm)
@@ -168,12 +207,12 @@ class VMManager:
 
         try:
 
+            print(f"Shutting down VM: {curr_vm.name}\n")
+
             self._send_command_to_vm(curr_vm, "system_powerdown")
 
             self._stopped_vms.append(curr_vm)
             self._running_vms.remove(curr_vm)
-
-            print(f"Shutting down VM: {curr_vm.name}")
 
         except Exception as e:
             print(f"Failed to start vm: {e}")
@@ -196,13 +235,13 @@ class VMManager:
 
         try:
 
+            print(f"Resuming VM: {curr_vm.name}\n")
+
             self._send_command_to_vm(curr_vm, "cont")
 
             self._running_vms.append(curr_vm)
             self._stopped_vms.remove(curr_vm)
             self._paused_vms.remove(curr_vm)
-
-            print(f"Resuming VM: {curr_vm.name}")
 
         except Exception as e:
             print(f"Failed to start vm: {e}")
@@ -225,27 +264,25 @@ class VMManager:
 
         try:
 
+            print(f"Pausing VM: {curr_vm.name}\n")
+
             self._send_command_to_vm(curr_vm, "stop")
 
             self._stopped_vms.append(curr_vm)
             self._paused_vms.append(curr_vm)
             self._running_vms.remove(curr_vm)
 
-            print(f"Pausing VM: {curr_vm.name}")
-
         except Exception as e:
             print(f"Failed to start vm: {e}")
 
     def get_vm_status(self):
-
-        print("Input the vm that you want to get the status of:")
 
         num_vms = len(self._live_vms)
 
         vm_num = -1
         while (vm_num < 0 or vm_num > num_vms):
 
-            print("Input the vm that you want to start:")
+            print("Input the vm that you want to get the status of:")
 
             for i in range(1, len(self._live_vms) + 1):
                 print(f"{i}: {self._live_vms[i-1].name}")
@@ -258,8 +295,7 @@ class VMManager:
 
             status = self._send_command_to_vm(curr_vm, "info status")
 
-
-            print(f"{curr_vm.name}'s status: {status}")
+            print(f"{curr_vm.name}'s status: {status}\n")
 
         except Exception as e:
             print(f"Failed to start vm: {e}")
@@ -268,11 +304,11 @@ class VMManager:
 
         sock = curr_vm.hv_conn
 
-        time.sleep(0.2)
+        time.sleep(0.3)
 
         sock.send(f"{cmd}\r\n".encode())
 
-        time.sleep(0.2)
+        time.sleep(0.3)
 
         response = sock.recv(1024).decode()
 

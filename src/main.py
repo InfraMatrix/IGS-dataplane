@@ -21,11 +21,11 @@ global vm_manager
 def print_commands():
 
     print("Press 1 to create a VM")
-    print("Press 2 to start a VM")
-    print("Press 3 to shutdown a VM")
-    print("Press 4 to pause a VM")
+    print("Press 2 to delete a VM")
+    print("Press 3 to start a VM")
+    print("Press 4 to shutdown a VM")
     print("Press 5 to resume a VM")
-    print("Press 6 to delete a VM")
+    print("Press 6 to pause a VM")
     print("Press 7 to get a VM's status")
     print("Press 8 to end the session\n")
 
@@ -33,18 +33,21 @@ def process_command(cmd=""):
 
     if (cmd == "1"):
         vm_manager.create_vm()
-        
+
     elif (cmd == "2"):
-        vm_manager.start_vm()
+        vm_manager.delete_vm()  
 
     elif (cmd == "3"):
-        vm_manager.shutdown_vm()
+        vm_manager.start_vm()
 
     elif (cmd == "4"):
-        vm_manager.pause_vm()
+        vm_manager.shutdown_vm()
 
     elif (cmd == "5"):
         vm_manager.resume_vm()
+
+    elif (cmd == "6"):
+        vm_manager.pause_vm()
 
     elif (cmd == "7"):
         vm_manager.get_vm_status()
