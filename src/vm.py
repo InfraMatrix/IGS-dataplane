@@ -22,3 +22,4 @@ class VM:
 
         self.name = vm_name
         self.disk_location = disk_location
+        self.hv_conn = None

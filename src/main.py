@@ -23,9 +23,10 @@ def print_commands():
     print("Press 1 to create a VM")
     print("Press 2 to start a VM")
     print("Press 3 to shutdown a VM")
-    print("Press 4 to restart a VM")
-    print("Press 5 to delete a VM")
-    print("Press 6 to end the session\n")
+    print("Press 4 to pause a VM")
+    print("Press 5 to resume a VM")
+    print("Press 6 to delete a VM")
+    print("Press 7 to end the session\n")
 
 def process_command(cmd=""):
 
@@ -39,10 +40,10 @@ def process_command(cmd=""):
         vm_manager.shutdown_vm()
 
     elif (cmd == "4"):
-        print("Restarting a VM")
+        vm_manager.pause_vm()
 
     elif (cmd == "5"):
-        print("Deleting a VM")
+        vm_manager.resume_vm()
 
     else:
         print("Exiting")

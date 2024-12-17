@@ -37,6 +37,8 @@ class VMManager:
 
     def start_vm(self): ...
     def shutdown_vm(self): ...
+    def resume_vm(self): ...
+    def pause_vm(self): ...
 
     def _send_command_to_vm(self, curr_vm, cmd): ...
 
@@ -49,6 +51,7 @@ class VMManager:
         self._vms     = []
         self._running_vms = []
         self._stopped_vms = []
+        self._paused_vms = []
         self._distro_manager = DistroManager()
 
         for d in os.listdir(f"{self._vm_location}/"):
@@ -129,6 +132,12 @@ class VMManager:
                 stderr=subprocess.DEVNULL,
             )
 
+            time.sleep(2.5)
+
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sock.connect(f"/tmp/{curr_vm.name}.sock")
+            curr_vm.hv_conn = sock
+
             print(f"Starting VM: {curr_vm.name}")
 
             self._running_vms.append(curr_vm)
@@ -165,22 +174,76 @@ class VMManager:
         except Exception as e:
             print(f"Failed to start vm: {e}")
 
+    def resume_vm(self):
+
+        num_vms = len(self._paused_vms)
+
+        vm_num = -1
+        while (vm_num < 0 or vm_num > num_vms):
+
+            print("Input the vm that you want to start:")
+
+            for i in range(1, len(self._paused_vms) + 1):
+                print(f"{i}: {self._paused_vms[i-1].name}")
+
+            vm_num = int(input("")) - 1
+
+        curr_vm = self._paused_vms[vm_num]
+
+        try:
+
+            self._send_command_to_vm(curr_vm, "cont")
+
+            self._running_vms.append(curr_vm)
+            self._stopped_vms.remove(curr_vm)
+            self._paused_vms.remove(curr_vm)
+
+            print(f"Resuming VM: {curr_vm.name}")
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
+
+    def pause_vm(self):
+
+        num_vms = len(self._running_vms)
+
+        vm_num = -1
+        while (vm_num < 0 or vm_num > num_vms):
+
+            print("Input the vm that you want to start:")
+
+            for i in range(1, len(self._running_vms) + 1):
+                print(f"{i}: {self._running_vms[i-1].name}")
+
+            vm_num = int(input("")) - 1
+
+        curr_vm = self._running_vms[vm_num]
+
+        try:
+
+            self._send_command_to_vm(curr_vm, "stop")
+
+            self._stopped_vms.append(curr_vm)
+            self._paused_vms.append(curr_vm)
+            self._running_vms.remove(curr_vm)
+
+            print(f"Pausing VM: {curr_vm.name}")
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
+
     def _send_command_to_vm(self, curr_vm, cmd):
 
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        sock.connect(f"/tmp/{curr_vm.name}.sock")
+        sock = curr_vm.hv_conn
 
-        response = sock.recv(1024).decode()
-
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         sock.send(f"{cmd}\r\n".encode())
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         response = sock.recv(1024).decode()
 
-        sock.close()
 
     def allocate_vm_disk(self, vm_id):
 
