@@ -24,14 +24,21 @@ import time
 import shutil
 import select
 import re
+import grpc
+from concurrent import futures
 
 from distro_manager import DistroManager
 from vm import VM
 
-class VMManager:
+from generated import hdp_pb2
+from generated import hdp_pb2_grpc
+
+class VMManager():
 
     def __init__(self): ...
     def connect(self): ...
+
+    def get_vms(self): ...
 
     def create_vm(self): ...
     def delete_vm(self): ...
@@ -42,7 +49,7 @@ class VMManager:
     def start_vm(self): ...
     def shutdown_vm(self): ...
     def resume_vm(self): ...
-    def pause_vm(self): ...
+    def stop_vm(self): ...
 
     def get_vm_status(self): ...
 
@@ -58,16 +65,17 @@ class VMManager:
         self._vm_location = "/compute/vms"
         self._vms     = []
         self._live_vms = []
+        self._down_vms = []
         self._running_vms = []
         self._stopped_vms = []
-        self._paused_vms = []
         self._distro_manager = DistroManager()
 
         for d in os.listdir(f"{self._vm_location}/"):
 
             self._vms.append(VM(d, f"{self._vm_location}/{d}/{d}.qcow2"))
-            self._stopped_vms.append(VM(d, f"{self._vm_location}/{d}/{d}.qcow2"))
+            self._down_vms.append(VM(d, f"{self._vm_location}/{d}/{d}.qcow2"))
 
+        self.connect()
 
     def connect(self):
 
@@ -85,13 +93,32 @@ class VMManager:
             print(f'Connection error: {e}', file=sys.stderr)
 
             return False
-        
+
+    def get_vms(self, status=None):
+
+        vm_names = []
+        vms = None
+        if (status == 1):
+            vms = self._vms
+
+        elif (status == 2):
+            vms = self._down_vms
+
+        elif (status == 3):
+            vms = self._live_vms
+
+        elif (status == 4):
+            vms = self._stopped_vms
+
+        elif (status == 5):
+            vms = self._running_vms
+
+        for i in vms:
+            vm_names.append(i.name)
+
+        return vm_names
     
     def create_vm(self):
-
-        print("Creating a VM\n")
-
-        self._distro_manager.download_ubuntu_iso()
 
         vm_uuid = str(uuid.uuid4())
         vm_path = f"{vm_uuid}"
@@ -102,33 +129,21 @@ class VMManager:
 
         new_vm = VM(vm_uuid, vm_path+"/{vm_uuid}.qcow2")
 
-        print(f"Created VM: {vm_uuid}\n")
-
         self._vms.append(new_vm)
-        self._stopped_vms.append(new_vm)
+        self._down_vms.append(new_vm)
 
-    def delete_vm(self):
-        num_vms = len(self._vms)
+        return vm_uuid
 
-        vm_num = -1
-        while (vm_num < 0 or vm_num > num_vms):
-
-            print("Input the vm that you want to delete:")
-
-            for i in range(1, len(self._vms) + 1):
-                print(f"{i}: {self._vms[i-1].name}")
-
-            vm_num = int(input("")) - 1
+    def delete_vm(self, vm_num=-1):
 
         curr_vm = self._vms[vm_num]
 
-        if (curr_vm in self._paused_vms):
+        if (curr_vm in self._stopped_vms):
 
             self._send_command_to_vm(curr_vm, "cont")
 
             self._running_vms.append(curr_vm)
             self._stopped_vms.remove(curr_vm)
-            self._paused_vms.remove(curr_vm)
 
         if (curr_vm in self._running_vms):
 
@@ -139,25 +154,24 @@ class VMManager:
 
         shutil.rmtree(f"{self._vm_location}/{curr_vm.name}")
 
-        self._live_vms.remove(curr_vm)
-        self._stopped_vms.remove(curr_vm)
+        if (curr_vm in self._live_vms):
+            self._live_vms.remove(curr_vm)
+
+        if (curr_vm in self._stopped_vms):
+            self._stopped_vms.remove(curr_vm)
+
+        if (curr_vm in self._down_vms):
+            self._down_vms.remove(curr_vm)
+
         self._vms.remove(curr_vm)
 
-    def start_vm(self):
+        return curr_vm.name
 
-        num_vms = len(self._stopped_vms)
+    def start_vm(self, vm_num=-1):
 
-        vm_num = -1
-        while (vm_num < 0 or vm_num > num_vms):
+        num_vms = len(self._down_vms)
 
-            print("Input the vm that you want to start:")
-
-            for i in range(1, len(self._stopped_vms) + 1):
-                print(f"{i}: {self._stopped_vms[i-1].name}")
-
-            vm_num = int(input("")) - 1
-
-        curr_vm = self._stopped_vms[vm_num]
+        curr_vm = self._down_vms[vm_num]
 
         try:
 
@@ -198,8 +212,6 @@ class VMManager:
 
             serial_port = match.group(1)
 
-            print(f"Starting VM: {curr_vm.name} with serial: {serial_port}\n")
-
             time.sleep(2.0)
 
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -210,111 +222,76 @@ class VMManager:
 
             self._live_vms.append(curr_vm)
             self._running_vms.append(curr_vm)
-            self._stopped_vms.remove(curr_vm)
+            self._down_vms.remove(curr_vm)
+
+            return curr_vm.name
 
         except Exception as e:
             print(f"Failed to start vm: {e}")
 
-    def shutdown_vm(self):
-
-        num_vms = len(self._running_vms)
-
-        vm_num = -1
-        while (vm_num < 0 or vm_num > num_vms):
-
-            print("Input the vm that you want to start:")
-
-            for i in range(1, len(self._running_vms) + 1):
-                print(f"{i}: {self._running_vms[i-1].name}")
-
-            vm_num = int(input("")) - 1
-
-        curr_vm = self._running_vms[vm_num]
-
-        try:
-
-            print(f"Shutting down VM: {curr_vm.name}\n")
-
-            self._send_command_to_vm(curr_vm, "system_powerdown")
-
-            self._stopped_vms.append(curr_vm)
-            self._live_vms.remove(curr_vm)
-            self._running_vms.remove(curr_vm)
-
-        except Exception as e:
-            print(f"Failed to start vm: {e}")
-
-    def resume_vm(self):
-
-        num_vms = len(self._paused_vms)
-
-        vm_num = -1
-        while (vm_num < 0 or vm_num > num_vms):
-
-            print("Input the vm that you want to start:")
-
-            for i in range(1, len(self._paused_vms) + 1):
-                print(f"{i}: {self._paused_vms[i-1].name}")
-
-            vm_num = int(input("")) - 1
-
-        curr_vm = self._paused_vms[vm_num]
-
-        try:
-
-            print(f"Resuming VM: {curr_vm.name}\n")
-
-            self._send_command_to_vm(curr_vm, "cont")
-
-            self._running_vms.append(curr_vm)
-            self._stopped_vms.remove(curr_vm)
-            self._paused_vms.remove(curr_vm)
-
-        except Exception as e:
-            print(f"Failed to start vm: {e}")
-
-    def pause_vm(self):
-
-        num_vms = len(self._running_vms)
-
-        vm_num = -1
-        while (vm_num < 0 or vm_num > num_vms):
-
-            print("Input the vm that you want to start:")
-
-            for i in range(1, len(self._running_vms) + 1):
-                print(f"{i}: {self._running_vms[i-1].name}")
-
-            vm_num = int(input("")) - 1
-
-        curr_vm = self._running_vms[vm_num]
-
-        try:
-
-            print(f"Pausing VM: {curr_vm.name}\n")
-
-            self._send_command_to_vm(curr_vm, "stop")
-
-            self._stopped_vms.append(curr_vm)
-            self._paused_vms.append(curr_vm)
-            self._running_vms.remove(curr_vm)
-
-        except Exception as e:
-            print(f"Failed to start vm: {e}")
-
-    def get_vm_status(self):
+    def shutdown_vm(self, vm_num=-1):
 
         num_vms = len(self._live_vms)
 
-        vm_num = -1
-        while (vm_num < 0 or vm_num > num_vms):
+        curr_vm = self._live_vms[vm_num]
 
-            print("Input the vm that you want to get the status of:")
+        try:
 
-            for i in range(1, len(self._live_vms) + 1):
-                print(f"{i}: {self._live_vms[i-1].name}")
+            self._send_command_to_vm(curr_vm, "system_powerdown")
 
-            vm_num = int(input("")) - 1
+            self._down_vms.append(curr_vm)
+            self._live_vms.remove(curr_vm)
+
+            if (curr_vm in self._running_vms):
+                self._running_vms.remove(curr_vm)
+
+            if (curr_vm in self._stopped_vms):
+                self._stopped_vms.remove(curr_vm)
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
+
+        return curr_vm.name
+
+    def resume_vm(self, vm_num=-1):
+
+        num_vms = len(self._stopped_vms)
+
+        curr_vm = self._stopped_vms[vm_num]
+
+        try:
+
+            self._send_command_to_vm(curr_vm, "cont")
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
+
+            self._running_vms.append(curr_vm)
+            self._stopped_vms.remove(curr_vm)
+
+        return curr_vm.name
+
+    def stop_vm(self, vm_num=-1):
+
+        num_vms = len(self._running_vms)
+
+        curr_vm = self._running_vms[vm_num]
+
+        try:
+
+            self._send_command_to_vm(curr_vm, "stop")
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
+
+        self._stopped_vms.append(curr_vm)
+        self._running_vms.remove(curr_vm)
+
+        return curr_vm.name
+
+    def get_vm_status(self, vm_num=-1):
+
+        num_vms = len(self._live_vms)
 
         curr_vm = self._live_vms[vm_num]
 
@@ -324,10 +301,10 @@ class VMManager:
 
             status = re.search(r"VM status: (\w+)", cmd_output).group(1)
 
-            print(f"{curr_vm.name}'s status: {status}\n")
-
         except Exception as e:
             print(f"Failed to start vm: {e}")
+
+        return status
 
     def connect_to_vm(self):
 
