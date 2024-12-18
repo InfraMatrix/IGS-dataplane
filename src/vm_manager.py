@@ -22,6 +22,8 @@ import subprocess
 import socket
 import time
 import shutil
+import select
+import re
 
 from distro_manager import DistroManager
 from vm import VM
@@ -43,6 +45,8 @@ class VMManager:
     def pause_vm(self): ...
 
     def get_vm_status(self): ...
+
+    def connect_to_vm(self): ...
 
     def _send_command_to_vm(self, curr_vm, cmd): ...
 
@@ -162,25 +166,47 @@ class VMManager:
                 "qemu-system-x86_64",
                 "-nographic",
                 "-monitor", f"unix:/tmp/{curr_vm.name}.sock,server,nowait",
+                "-serial", "pty",
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf"
             ]
 
-            result = subprocess.Popen(
+            process = subprocess.Popen(
                 run_vm_cmd,
                 # Uncomment for testing that vms run
                 start_new_session = True,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                universal_newlines=True
             )
 
-            print(f"Starting VM: {curr_vm.name}\n")
+            time.sleep(0.1)
 
-            time.sleep(2.5)
+            readable, _, _ = select.select([process.stdout, process.stderr], [], [], 2.0)
+
+            match = None
+            for pipe in readable:
+
+                for line in pipe:
+
+                    if (match):
+                        break
+
+                    match = re.search(r"char device redirected to (/dev/pts/\d+)", line)
+                    if (match):
+                        break
+
+            serial_port = match.group(1)
+
+            print(f"Starting VM: {curr_vm.name} with serial: {serial_port}\n")
+
+            time.sleep(2.0)
 
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.connect(f"/tmp/{curr_vm.name}.sock")
+
             curr_vm.hv_conn = sock
+            curr_vm.serial_conn = serial_port
 
             self._live_vms.append(curr_vm)
             self._running_vms.append(curr_vm)
@@ -212,6 +238,7 @@ class VMManager:
             self._send_command_to_vm(curr_vm, "system_powerdown")
 
             self._stopped_vms.append(curr_vm)
+            self._live_vms.remove(curr_vm)
             self._running_vms.remove(curr_vm)
 
         except Exception as e:
@@ -293,12 +320,46 @@ class VMManager:
 
         try:
 
-            status = self._send_command_to_vm(curr_vm, "info status")
+            cmd_output = self._send_command_to_vm(curr_vm, "info status")
+
+            status = re.search(r"VM status: (\w+)", cmd_output).group(1)
 
             print(f"{curr_vm.name}'s status: {status}\n")
 
         except Exception as e:
             print(f"Failed to start vm: {e}")
+
+    def connect_to_vm(self):
+
+        num_vms = len(self._running_vms)
+
+        vm_num = -1
+        while (vm_num < 0 or vm_num > num_vms):
+
+            print("Input the vm that you want to connect to over serial :")
+
+            for i in range(1, len(self._running_vms) + 1):
+                print(f"{i}: {self._running_vms[i-1].name}")
+
+            vm_num = int(input("")) - 1
+
+        curr_vm = self._running_vms[vm_num]
+
+        print(f"Attempting to patch you into {curr_vm.name}\n")
+
+        try:
+            subprocess.run([
+                'socat', '-',
+                f"{curr_vm.serial_conn}"
+            ], check=True)
+
+            return True
+
+        except Exception as e:
+            print(f"Failed to connect to VM: {e}")
+
+        except KeyboardInterrupt:
+            print(f"\n\nExited from: {curr_vm.name}\n")
 
     def _send_command_to_vm(self, curr_vm, cmd):
 

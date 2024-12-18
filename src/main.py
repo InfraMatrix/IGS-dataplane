@@ -27,7 +27,8 @@ def print_commands():
     print("Press 5 to resume a VM")
     print("Press 6 to pause a VM")
     print("Press 7 to get a VM's status")
-    print("Press 8 to end the session\n")
+    print("Press 8 to connect to a VM")
+    print("Press 9 to end the session\n")
 
 def process_command(cmd=""):
 
@@ -35,7 +36,7 @@ def process_command(cmd=""):
         vm_manager.create_vm()
 
     elif (cmd == "2"):
-        vm_manager.delete_vm()  
+        vm_manager.delete_vm()
 
     elif (cmd == "3"):
         vm_manager.start_vm()
@@ -51,6 +52,9 @@ def process_command(cmd=""):
 
     elif (cmd == "7"):
         vm_manager.get_vm_status()
+
+    elif (cmd == "8"):
+        vm_manager.connect_to_vm()
 
     else:
         print("Exiting")

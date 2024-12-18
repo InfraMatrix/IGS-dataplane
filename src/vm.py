@@ -18,8 +18,9 @@ class VM:
 
     def __init__(self): ...
 
-    def __init__(self, vm_name, disk_location):
+    def __init__(self, vm_name, disk_location, hv_conn=None, serial_conn=None):
 
         self.name = vm_name
         self.disk_location = disk_location
         self.hv_conn = None
+        self.serial_conn = None
