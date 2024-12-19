@@ -17,6 +17,7 @@ syntax = "proto3";
 package hdp;
 
 service vmm {
+
   rpc GetVMS(GetVMSRequest) returns (GetVMSResponse);
   rpc CreateVM(CreateVMRequest) returns (CreateVMResponse);
   rpc DeleteVM(DeleteVMRequest) returns (DeleteVMResponse);
@@ -25,6 +26,8 @@ service vmm {
   rpc ResumeVM(ResumeVMRequest) returns (ResumeVMResponse);
   rpc StopVM(StopVMRequest) returns (StopVMResponse);
   rpc GetVMStatus(GetVMStatusRequest) returns (GetVMStatusResponse);
+
+  rpc PTYConnection (stream ClientMSG) returns (stream ServerMSG);
 
 }
 
@@ -80,4 +83,11 @@ message GetVMStatusRequest {
 }
 message GetVMStatusResponse {
   string vm_status = 1;
+}
+
+message ClientMSG {
+  string msg = 1;
+}
+message ServerMSG {
+  string msg = 1;
 }
