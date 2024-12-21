@@ -27,7 +27,7 @@ service vmm {
   rpc StopVM(StopVMRequest) returns (StopVMResponse);
   rpc GetVMStatus(GetVMStatusRequest) returns (GetVMStatusResponse);
 
-  rpc PTYConnection (stream ClientMSG) returns (stream ServerMSG);
+  rpc StartPTYConnection (StartPTYConnectionRequest) returns (StartPTYConnectionResponse);
 
 }
 
@@ -85,9 +85,9 @@ message GetVMStatusResponse {
   string vm_status = 1;
 }
 
-message ClientMSG {
-  string msg = 1;
+message StartPTYConnectionRequest {
+  int64 vm_number = 1;
 }
-message ServerMSG {
-  string msg = 1;
+message StartPTYConnectionResponse {
+  int64 vm_number = 1;
 }

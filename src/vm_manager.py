@@ -118,6 +118,9 @@ class VMManager():
 
         return vm_names
     
+    def get_vm_pty_file(self, vm_num=-1):
+        return self._running_vms[vm_num].serial_conn
+    
     def create_vm(self):
 
         vm_uuid = str(uuid.uuid4())

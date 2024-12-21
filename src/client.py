@@ -15,6 +15,10 @@
 # limitations under the License.
 
 import grpc
+import socket
+import sys
+import select
+import time
 
 from generated import hdp_pb2, hdp_pb2_grpc
 
@@ -38,10 +42,14 @@ def pick_vm(stub=None, status=None, action=""):
     vms = response.vm_names
     num_vms = len(vms)
 
+    if (num_vms == 0):
+        print(f"No VMs to {action}\n")
+        return -1
+
     vm_num = -1
     while (vm_num < 0 or vm_num > num_vms):
 
-        print(f"Input the vm that you want to {action}:")
+        print(f"Input the VM that you want to {action}:")
 
         for i in range(1, num_vms + 1):
             print(f"{i}: {vms[i-1]}")
@@ -62,8 +70,8 @@ def process_command(cmd="", stub=None):
     elif (cmd == "2"):
 
         vm_num = pick_vm(stub=stub, status=1, action="delete")
-
-        print(vm_num)
+        if (vm_num == -1):
+            return
 
         request = hdp_pb2.DeleteVMRequest(vm_number=vm_num)
         response = stub.DeleteVM(request)
@@ -73,6 +81,8 @@ def process_command(cmd="", stub=None):
     elif (cmd == "3"):
 
         vm_num = pick_vm(stub=stub, status=2, action="start")
+        if (vm_num == -1):
+            return
 
         request = hdp_pb2.StartVMRequest(vm_number=vm_num)
         response = stub.StartVM(request)
@@ -82,6 +92,8 @@ def process_command(cmd="", stub=None):
     elif (cmd == "4"):
 
         vm_num = pick_vm(stub=stub, status=3, action="shut down")
+        if (vm_num == -1):
+            return
 
         request = hdp_pb2.ShutdownVMRequest(vm_number=vm_num)
         response = stub.ShutdownVM(request)
@@ -91,6 +103,8 @@ def process_command(cmd="", stub=None):
     elif (cmd == "5"):
 
         vm_num = pick_vm(stub=stub, status=4, action="resume")
+        if (vm_num == -1):
+            return
 
         request = hdp_pb2.ResumeVMRequest(vm_number=vm_num)
         response = stub.ResumeVM(request)
@@ -100,6 +114,8 @@ def process_command(cmd="", stub=None):
     elif (cmd == "6"):
 
         vm_num = pick_vm(stub=stub, status=5, action="stop")
+        if (vm_num == -1):
+            return
 
         request = hdp_pb2.StopVMRequest(vm_number=vm_num)
         response = stub.StopVM(request)
@@ -108,35 +124,65 @@ def process_command(cmd="", stub=None):
 
     elif (cmd == "7"):
 
-        vm_num = pick_vm(stub=stub, status=3, action="monitor its status")
+        vm_num = pick_vm(stub=stub, status=5, action="monitor its status")
+        if (vm_num == -1):
+            return
 
         request = hdp_pb2.GetVMStatusRequest(vm_number=vm_num)
         response = stub.GetVMStatus(request)
 
         print(f"VM Status: {response.vm_status}")
 
+    elif (cmd == "8"):
+
+        vm_num = pick_vm(stub=stub, status=5, action="connect to")
+        if (vm_num == -1):
+            return
+
+        request = hdp_pb2.StartPTYConnectionRequest(vm_number=vm_num)
+        response = stub.StartPTYConnection(request)
+
+        print("Connecting to server\n")
+
+        time.sleep(1)
+
+        client = socket.socket()
+        client.connect(("0.0.0.0", 9001))
+
+        print("Connected to server, patching you into the VM\n")
+
+        continue_processing = True
+        while continue_processing:
+
+            try:
+
+                fds, _, _ = select.select([sys.stdin, client], [], [], 0.1)
+ 
+                for fd in fds:
+
+                    if fd is sys.stdin:
+ 
+                        data = sys.stdin.buffer.read1(1024)
+                        if data: 
+                            client.send(data)
+
+                    else:
+
+                        data = client.recv(1024)
+                        if data:
+                            sys.stdout.buffer.write(data)
+
+                        sys.stdout.buffer.flush()
+
+            except KeyboardInterrupt:
+                client.send(b"exit\n\n")
+                continue_processing = False
+
+        client.close()
+
     else:
         print("Exiting")
         exit()
-
-    """elif (cmd == "3"):
-        vm_manager.start_vm()
-
-    elif (cmd == "4"):
-        vm_manager.shutdown_vm()
-
-    elif (cmd == "5"):
-        vm_manager.resume_vm()
-
-    elif (cmd == "6"):
-        vm_manager.stop_vm()
-
-    elif (cmd == "7"):
-        vm_manager.get_vm_status()
-
-    elif (cmd == "8"):
-        vm_manager.connect_to_vm()"""
-
 
     print("\n")
 

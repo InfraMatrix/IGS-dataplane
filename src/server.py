@@ -16,6 +16,11 @@
 
 import grpc
 from concurrent import futures
+import subprocess
+import socket
+import threading
+import os
+import select
 
 from generated import hdp_pb2, hdp_pb2_grpc
 
@@ -25,6 +30,7 @@ class VMMServicer(hdp_pb2_grpc.vmmServicer):
 
     def __init__(self):
         self.vm_manager = VMManager()
+        self.server_socket = None
 
     def GetVMS(self, request, context):
         response = self.vm_manager.get_vms(request.status)
@@ -63,6 +69,70 @@ class VMMServicer(hdp_pb2_grpc.vmmServicer):
         vm_name = self.vm_manager.get_vms(3)[request.vm_number]
         response = self.vm_manager.get_vm_status(vm_num=request.vm_number)
         return hdp_pb2.GetVMStatusResponse(vm_status=response)
+
+    def run_pty_connection(self, client, pty_path):
+
+        pty = os.open(pty_path, os.O_RDWR | os.O_NONBLOCK)
+    
+        while True:
+
+            try:
+
+                fds, _, _ = select.select([client, pty], [], [], 0.1)
+
+                for fd in fds:
+
+                    if fd is client:
+
+                        data = client.recv(1024)
+                        if data:
+                            os.write(pty, data)
+
+                    else:
+
+                        data = os.read(pty, 1024)
+                        if data:
+                            client.send(data)
+            except:
+                break
+
+    def StartPTYConnection(self, request, context):
+
+        vm_conn = self.vm_manager._running_vms[request.vm_number]
+
+        def pty_server():
+
+            if (self.server_socket== None):
+
+                server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                server.bind(("0.0.0.0", 9001))
+                server.listen(1)
+
+                self.server_socket = server
+
+            try:
+
+                print("Waiting for connection from client\n")
+
+                client, addr = self.server_socket.accept()
+
+                print("Accepted connection\n")
+
+                self.run_pty_connection(client, vm_conn.serial_conn)
+
+            except socket.error:
+                pass
+
+        thread = threading.Thread(target=pty_server)
+        thread.daemon = True
+        thread.start()
+
+        return hdp_pb2.StartPTYConnectionResponse(vm_number=request.vm_number)
+
+
+
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
