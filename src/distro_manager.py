@@ -23,7 +23,7 @@ class DistroManager:
 
     def __init__(self):
 
-        self.iso_location = "/compute/isos"
+        self.iso_location = "/IGS/compute/isos"
         os.makedirs(self.iso_location, exist_ok=True)
 
     def download_ubuntu_iso(self, version="22.04.5"):

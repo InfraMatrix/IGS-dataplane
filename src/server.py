@@ -130,10 +130,6 @@ class VMMServicer(hdp_pb2_grpc.vmmServicer):
 
         return hdp_pb2.StartPTYConnectionResponse(vm_number=request.vm_number)
 
-
-
-
-
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     hdp_pb2_grpc.add_vmmServicer_to_server(

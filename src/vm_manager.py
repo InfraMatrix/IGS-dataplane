@@ -62,7 +62,7 @@ class VMManager():
         self._uri = "qemu:///system"
         self._conn = None
         self._logger = None
-        self._vm_location = "/compute/vms"
+        self._vm_location = "/IGS/compute/vms"
         self._vms     = []
         self._live_vms = []
         self._down_vms = []
@@ -176,6 +176,8 @@ class VMManager():
 
         curr_vm = self._down_vms[vm_num]
 
+        print(vars(curr_vm))
+
         try:
 
             run_vm_cmd = [
@@ -185,6 +187,7 @@ class VMManager():
                 "-monitor", f"unix:/tmp/{curr_vm.name}.sock,server,nowait",
                 "-serial", "pty",
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf"
+
             ]
 
             process = subprocess.Popen(
@@ -381,7 +384,7 @@ class VMManager():
 
                 "qemu-img", "create",
                 "-f", "qcow2",
-                "-b", "/compute/images/ubuntu22.04.qcow2",
+                "-b", "/IGS/compute/images/ubuntu22.04.qcow2",
                 "-F", "qcow2",
                 f"{self._vm_location}/{vm_id}/{vm_id}.qcow2",
                 "10G"
@@ -406,9 +409,9 @@ class VMManager():
                 content = cfile.read()
 
                 content = content.replace("GNAME", vm_id)
-                content = content.replace("FPATH", f"/compute/vms/{vm_id}/{vm_id}.qcow2")
+                content = content.replace("FPATH", f"/IGS/compute/vms/{vm_id}/{vm_id}.qcow2")
 
-                with open(f"/compute/vms/{vm_id}/{vm_id}.conf", "w") as fcfile:
+                with open(f"/IGS/compute/vms/{vm_id}/{vm_id}.conf", "w") as fcfile:
 
                     fcfile.write(content)
         except Exception as e:

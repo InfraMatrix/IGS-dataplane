@@ -149,6 +149,8 @@ def process_command(cmd="", stub=None):
         client = socket.socket()
         client.connect(("0.0.0.0", 9001))
 
+        client.send(b"\n")
+
         print("Connected to server, patching you into the VM\n")
 
         continue_processing = True
