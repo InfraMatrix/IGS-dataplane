@@ -1,0 +1,92 @@
+// Copyright (c) 2024 InfraMatrix. All rights reserved.
+
+// The user ("Licensee") is hereby granted permission to use this software and
+// associated documentation files (the "Software"),
+// subject to the express condition that Licensee shall not, under any circumstances,
+// redistribute, sublicense, copy, transfer, publish, disseminate, transmit,
+// broadcast, sell, lease, rent, share, loan, or otherwise make available the
+// Software, in whole or in part, in any form or by any means, to any third party
+// without prior written consent from the copyright holder,
+// and any such unauthorized distribution shall constitute a material breach of this
+// license and result in immediate, automatic termination of all rights granted
+// hereunder.
+
+syntax = "proto3";
+
+package hdp;
+
+service vmm {
+
+  rpc GetVMS(GetVMSRequest) returns (GetVMSResponse);
+  rpc CreateVM(CreateVMRequest) returns (CreateVMResponse);
+  rpc DeleteVM(DeleteVMRequest) returns (DeleteVMResponse);
+  rpc StartVM(StartVMRequest) returns (StartVMResponse);
+  rpc ShutdownVM(ShutdownVMRequest) returns (ShutdownVMResponse);
+  rpc ResumeVM(ResumeVMRequest) returns (ResumeVMResponse);
+  rpc StopVM(StopVMRequest) returns (StopVMResponse);
+  rpc GetVMStatus(GetVMStatusRequest) returns (GetVMStatusResponse);
+
+  rpc StartPTYConnection (StartPTYConnectionRequest) returns (StartPTYConnectionResponse);
+
+}
+
+message GetVMSRequest {
+  int64 status = 1;
+}
+message GetVMSResponse {
+    repeated string vm_names = 1;
+}
+
+message CreateVMRequest {}
+message CreateVMResponse {
+  string vm_name = 1;
+}
+
+message DeleteVMRequest {
+  int64 vm_number = 1;
+}
+message DeleteVMResponse {
+  string vm_name = 1;
+}
+
+message StartVMRequest {
+  int64 vm_number = 1;
+}
+message StartVMResponse {
+  string vm_name = 1;
+}
+
+message ShutdownVMRequest {
+  int64 vm_number = 1;
+}
+message ShutdownVMResponse {
+  string vm_name = 1;
+}
+
+message ResumeVMRequest {
+  int64 vm_number = 1;
+}
+message ResumeVMResponse {
+  string vm_name = 1;
+}
+
+message StopVMRequest {
+  int64 vm_number = 1;
+}
+message StopVMResponse {
+  string vm_name = 1;
+}
+
+message GetVMStatusRequest {
+  int64 vm_number = 1;
+}
+message GetVMStatusResponse {
+  string vm_status = 1;
+}
+
+message StartPTYConnectionRequest {
+  int64 vm_number = 1;
+}
+message StartPTYConnectionResponse {
+  int64 vm_number = 1;
+}
