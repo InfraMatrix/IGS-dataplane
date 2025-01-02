@@ -28,7 +28,8 @@ from concurrent import futures
 
 from distro_manager import DistroManager
 from vm import VM
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from network.vm_network_manager import VMNetworkManager
 from generated import hdp_pb2
 from generated import hdp_pb2_grpc
 
@@ -68,11 +69,21 @@ class VMManager():
         self._running_vms = []
         self._stopped_vms = []
         self._distro_manager = DistroManager()
+        self._network_manager = VMNetworkManager()
+
+        count = 0
 
         for d in os.listdir(f"{self._vm_location}/"):
 
-            self._vms.append(VM(d, f"{self._vm_location}/{d}/{d}.qcow2"))
-            self._down_vms.append(VM(d, f"{self._vm_location}/{d}/{d}.qcow2"))
+            #vm_tap_intf = self._network_manager.setup_vm_networking_interface(f"vm{count}")
+            vm_tap_intf = None
+
+            vm = VM(d, disk_location=f"{self._vm_location}/{d}/{d}.qcow2", tap_intf=vm_tap_intf, mac_address=self._network_manager.generate_mac())
+
+            self._vms.append(vm)
+            self._down_vms.append(vm)
+
+            count += 1
 
         self.connect()
 
@@ -129,7 +140,13 @@ class VMManager():
         self.copy_vm_image(vm_uuid)
         self.write_vm_config(vm_uuid)
 
-        new_vm = VM(vm_uuid, vm_path+"/{vm_uuid}.qcow2")
+        #vm_tap_intf = self._network_manager.setup_vm_networking_interface(f"vm{len(self._vms)}")
+
+        vm_tap_intf = None
+
+        new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf, mac_address=self._network_manager.generate_mac())
+
+        print(new_vm.mac_address)
 
         self._vms.append(new_vm)
         self._down_vms.append(new_vm)
@@ -175,18 +192,20 @@ class VMManager():
 
         curr_vm = self._down_vms[vm_num]
 
-        print(vars(curr_vm))
+        print(f"Running with: {curr_vm.tap_intf}")
 
         try:
 
             run_vm_cmd = [
-
                 "qemu-system-x86_64",
                 "-nographic",
                 "-monitor", f"unix:/tmp/{curr_vm.name}.sock,server,nowait",
                 "-serial", "pty",
-                "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf"
-
+                "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
+                "-net", "nic",
+                "-net", "user",
+                #'-netdev', f'tap,id=net0,ifname={curr_vm.tap_intf},script=no,downscript=no',
+                #'-device', f'virtio-net-pci,netdev=net0,mac={curr_vm.mac_address}'
             ]
 
             process = subprocess.Popen(
@@ -196,10 +215,9 @@ class VMManager():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                universal_newlines=True
+                universal_newlines=True,
+                bufsize=0
             )
-
-            time.sleep(0.1)
 
             readable, _, _ = select.select([process.stdout, process.stderr], [], [], 2.0)
 
@@ -207,6 +225,7 @@ class VMManager():
             for pipe in readable:
 
                 for line in pipe:
+                    print(f"QEMU output: {line}")  # Debug print
 
                     if (match):
                         break
@@ -403,7 +422,7 @@ class VMManager():
     def write_vm_config(self, vm_id):
 
         try:
-            with open("../conf/instances/micro.conf", "r") as cfile:
+            with open("conf/instances/micro.conf", "r") as cfile:
 
                 content = cfile.read()
 

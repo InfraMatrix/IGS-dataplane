@@ -1,2 +1,4 @@
 src/__pycache__/
-src/generated/
+src/generated/compute/__pycache__
+compute/generated
+compute/__pycache__/

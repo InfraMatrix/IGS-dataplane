@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/bash
 
 # Copyright (c) 2024 InfraMatrix. All rights reserved.
 
@@ -13,17 +13,4 @@
 # license and result in immediate, automatic termination of all rights granted
 # hereunder.
 
-from pyroute2 import IPRoute
-
-class VM:
-
-    def __init__(self): ...
-
-    def __init__(self, vm_name, disk_location, tap_intf=None, hv_conn=None, serial_conn=None, mac_address=None):
-
-        self.name = vm_name
-        self.disk_location = disk_location
-        self.tap_intf = tap_intf
-        self.hv_conn = hv_conn
-        self.serial_conn = serial_conn
-        self.mac_address = mac_address
+#!/bin/bash
