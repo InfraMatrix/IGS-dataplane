@@ -75,7 +75,6 @@ class VMManager():
 
         for d in os.listdir(f"{self._vm_location}/"):
 
-            #vm_tap_intf = self._network_manager.setup_vm_networking_interface(f"vm{count}")
             vm_tap_intf = None
 
             vm = VM(d, disk_location=f"{self._vm_location}/{d}/{d}.qcow2", tap_intf=vm_tap_intf, mac_address=self._network_manager.generate_mac())
@@ -140,8 +139,6 @@ class VMManager():
         self.copy_vm_image(vm_uuid)
         self.write_vm_config(vm_uuid)
 
-        #vm_tap_intf = self._network_manager.setup_vm_networking_interface(f"vm{len(self._vms)}")
-
         vm_tap_intf = None
 
         new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf, mac_address=self._network_manager.generate_mac())
@@ -204,8 +201,7 @@ class VMManager():
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
                 "-net", "nic",
                 "-net", "user",
-                #'-netdev', f'tap,id=net0,ifname={curr_vm.tap_intf},script=no,downscript=no',
-                #'-device', f'virtio-net-pci,netdev=net0,mac={curr_vm.mac_address}'
+                "-drive", "file=rbd:vm_pool/vm-drive1,format=raw",
             ]
 
             process = subprocess.Popen(

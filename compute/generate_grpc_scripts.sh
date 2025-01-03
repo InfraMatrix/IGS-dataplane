@@ -28,4 +28,3 @@ sed -i 's/^import \([a-zA-Z0-9_]*_pb2\) as /from . import \1 as /g' generated/hd
 sed -i 's/^import \([a-zA-Z0-9_]*_pb2\)$/from . import \1/g' generated/hdp_pb2.py
 sed -i 's/^import \([a-zA-Z0-9_]*_pb2\) as /from . import \1 as /g' generated/hdp_pb2_grpc.py
 sed -i 's/^import \([a-zA-Z0-9_]*_pb2\)$/from . import \1/g' generated/hdp_pb2_grpc.py
-

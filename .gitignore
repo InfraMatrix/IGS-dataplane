@@ -2,3 +2,5 @@ src/__pycache__/
 src/generated/compute/__pycache__
 compute/generated
 compute/__pycache__/
+network/__pycache__/
+storage/__pycache__/
