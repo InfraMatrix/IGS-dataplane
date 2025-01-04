@@ -13,7 +13,7 @@
 # license and result in immediate, automatic termination of all rights granted
 # hereunder.
 
-sudo apt install -y cephadm
+sudo apt install -y ceph ceph-common ceph-volume cephadm
 
 cephadm add-repo --release reef
 cephadm install
