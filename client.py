@@ -14,14 +14,20 @@
 # hereunder.
 
 import grpc
-import socket
 import sys
-import select
-import time
 
-from compute.generated import hdp_pb2, hdp_pb2_grpc
+from compute import compute
 
-def print_commands():
+from storage import storage
+
+def print_subsytems():
+
+    print("Press 1 to invoke compute subsystem")
+    print("Press 2 to invoke network subsystem")
+    print("Press 3 to invoke storage subsystem")
+    print("Press 4 to exit the dataplane\n")
+
+def print_compute_commands():
 
     print("Press 1 to create a VM")
     print("Press 2 to delete a VM")
@@ -31,179 +37,44 @@ def print_commands():
     print("Press 6 to stop a VM")
     print("Press 7 to get a VM's status")
     print("Press 8 to connect to a VM")
-    print("Press 9 to end the session\n")
 
-def pick_vm(stub=None, status=None, action=""):
+def print_storage_commands():
 
-    request = hdp_pb2.GetVMSRequest(status=status)
-    response = stub.GetVMS(request)
+    print("Press 1 to get available disks\n")
 
-    vms = response.vm_names
-    num_vms = len(vms)
+def dataplane_shell(compute_stub=None, storage_stub=None):
 
-    if (num_vms == 0):
-        print(f"No VMs to {action}\n")
-        return -1
-
-    vm_num = -1
-    while (vm_num < 0 or vm_num > num_vms):
-
-        print(f"Input the VM that you want to {action}:")
-
-        for i in range(1, num_vms + 1):
-            print(f"{i}: {vms[i-1]}")
-
-        vm_num = int(input("")) - 1
-
-    return vm_num
-
-def process_command(cmd="", stub=None):
-
-    if (cmd == "1"):
-
-        request = hdp_pb2.CreateVMRequest()
-        response = stub.CreateVM(request)
-
-        print(f"VM Created: {response.vm_name}")
-
-    elif (cmd == "2"):
-
-        vm_num = pick_vm(stub=stub, status=1, action="delete")
-        if (vm_num == -1):
-            return
-
-        request = hdp_pb2.DeleteVMRequest(vm_number=vm_num)
-        response = stub.DeleteVM(request)
-
-        print(f"VM Deleted: {response.vm_name}")
-
-    elif (cmd == "3"):
-
-        vm_num = pick_vm(stub=stub, status=2, action="start")
-        if (vm_num == -1):
-            return
-
-        request = hdp_pb2.StartVMRequest(vm_number=vm_num)
-        response = stub.StartVM(request)
-
-        print(f"VM Started: {response.vm_name}")
-
-    elif (cmd == "4"):
-
-        vm_num = pick_vm(stub=stub, status=3, action="shut down")
-        if (vm_num == -1):
-            return
-
-        request = hdp_pb2.ShutdownVMRequest(vm_number=vm_num)
-        response = stub.ShutdownVM(request)
-
-        print(f"VM Shut Down: {response.vm_name}")
-
-    elif (cmd == "5"):
-
-        vm_num = pick_vm(stub=stub, status=4, action="resume")
-        if (vm_num == -1):
-            return
-
-        request = hdp_pb2.ResumeVMRequest(vm_number=vm_num)
-        response = stub.ResumeVM(request)
-
-        print(f"VM Resumed: {response.vm_name}")
-
-    elif (cmd == "6"):
-
-        vm_num = pick_vm(stub=stub, status=5, action="stop")
-        if (vm_num == -1):
-            return
-
-        request = hdp_pb2.StopVMRequest(vm_number=vm_num)
-        response = stub.StopVM(request)
-
-        print(f"VM Stopped: {response.vm_name}")
-
-    elif (cmd == "7"):
-
-        vm_num = pick_vm(stub=stub, status=5, action="monitor its status")
-        if (vm_num == -1):
-            return
-
-        request = hdp_pb2.GetVMStatusRequest(vm_number=vm_num)
-        response = stub.GetVMStatus(request)
-
-        print(f"VM Status: {response.vm_status}")
-
-    elif (cmd == "8"):
-
-        vm_num = pick_vm(stub=stub, status=5, action="connect to")
-        if (vm_num == -1):
-            return
-
-        request = hdp_pb2.StartPTYConnectionRequest(vm_number=vm_num)
-        response = stub.StartPTYConnection(request)
-
-        print("Connecting to server\n")
-
-        time.sleep(1)
-
-        client = socket.socket()
-        client.connect(("0.0.0.0", 9001))
-
-        client.send(b"\n")
-
-        print("Connected to server, patching you into the VM\n")
-
-        continue_processing = True
-        while continue_processing:
-
-            try:
-
-                fds, _, _ = select.select([sys.stdin, client], [], [], 0.1)
- 
-                for fd in fds:
-
-                    if fd is sys.stdin:
- 
-                        data = sys.stdin.buffer.read1(1024)
-                        if data: 
-                            client.send(data)
-
-                    else:
-
-                        data = client.recv(1024)
-                        if data:
-                            sys.stdout.buffer.write(data)
-
-                        sys.stdout.buffer.flush()
-
-            except KeyboardInterrupt:
-                client.send(b"exit\n\n")
-                continue_processing = False
-
-        client.close()
-
-    else:
-        print("Exiting")
-        exit()
-
-    print("\n")
-
-def vm_manager_shell(stub=None):
-
-    print("\nWelcome to the VM Manager!\n")
+    print("\nWelcome to the dataplane shell\n")
 
     while(True):
 
-        print_commands()
-        command = input("")
-        process_command(command, stub)
+        print_subsytems()
+        subsystem = input("")
+
+        if (subsystem == "1"):
+
+            print_compute_commands()
+            command = input("")
+            compute.process_compute_command(command, compute_stub)
+
+        elif (subsystem == "3"):
+
+            print_storage_commands()
+            command = input("")
+            storage.process_storage_command(command, storage_stub)
+
+        elif (subsystem == "4"):
+
+            exit()
 
 def main():
 
     channel = grpc.insecure_channel('localhost:50051')
     
-    stub = hdp_pb2_grpc.vmmStub(channel)
+    stub = compute.compute_pb2_grpc.vmmStub(channel)
 
-    vm_manager_shell(stub)
+    dataplane_shell(stub)
 
 if __name__ == '__main__':
+
     main()

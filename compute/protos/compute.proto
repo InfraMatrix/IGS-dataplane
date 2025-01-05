@@ -13,7 +13,7 @@
 
 syntax = "proto3";
 
-package hdp;
+package compute;
 
 service vmm {
 

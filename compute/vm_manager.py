@@ -28,8 +28,8 @@ from concurrent import futures
 
 from .distro_manager import DistroManager
 from .vm import VM
-from .generated import hdp_pb2
-from .generated import hdp_pb2_grpc
+from .generated import compute_pb2
+from .generated import compute_pb2_grpc
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from network.vm_network_manager import VMNetworkManager

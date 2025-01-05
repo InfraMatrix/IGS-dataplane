@@ -1,6 +1,8 @@
-src/__pycache__
-src/generated/compute/__pycache__
-compute/generated
+__pycache__
+
 compute/__pycache__
 network/__pycache__
 storage/__pycache__
+
+compute/generated
+storage/generated

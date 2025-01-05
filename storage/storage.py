@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copyright (c) 2024 InfraMatrix. All rights reserved.
 
 # The user ("Licensee") is hereby granted permission to use this software and
@@ -13,18 +11,21 @@
 # license and result in immediate, automatic termination of all rights granted
 # hereunder.
 
-rm -rf generated
-mkdir -p generated
+from .generated import storage_pb2, storage_pb2_grpc
 
-touch generated/__init__.py
+def process_storage_command(cmd="", stub=None):
 
-python3 -m grpc_tools.protoc \
-  -I protos \
-  --python_out=generated \
-  --grpc_python_out=generated \
-  protos/compute.proto
+    if (cmd == "1"):
 
-sed -i 's/^import \([a-zA-Z0-9_]*_pb2\) as /from . import \1 as /g' generated/compute_pb2.py
-sed -i 's/^import \([a-zA-Z0-9_]*_pb2\)$/from . import \1/g' generated/compute_pb2.py
-sed -i 's/^import \([a-zA-Z0-9_]*_pb2\) as /from . import \1 as /g' generated/compute_pb2_grpc.py
-sed -i 's/^import \([a-zA-Z0-9_]*_pb2\)$/from . import \1/g' generated/compute_pb2_grpc.py
+        #request = storage_pb2.GetDisksRequest()
+        #response = stub.GetDisks(request)
+
+        #print(f"Disks: {response.disk_names}")
+
+        print(f"Disks:")
+
+    else:
+
+        print("Exiting")
+
+    print("\n")
