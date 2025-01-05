@@ -16,7 +16,6 @@
 import json
 import subprocess
 
-
 class DiskManager:
 
     def __init__(self): ...
@@ -144,6 +143,7 @@ class DiskManager:
     def create_partition(self, disk_name="", size_gb=0):
 
         if (size_gb == 0 or disk_name == ""):
+
             return None
 
         ceph_disk = None
@@ -166,6 +166,7 @@ class DiskManager:
                     ceph_disk = disk
 
         if (ceph_disk == None or size_gb > ceph_disk["free_space_gb"]):
+
             return None
 
         return None

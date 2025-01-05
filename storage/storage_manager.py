@@ -19,7 +19,7 @@ import sys
 import os
 import json
 
-from disk_manager import DiskManager
+from .disk_manager import DiskManager
 
 class StorageManager:
 
@@ -50,12 +50,14 @@ class StorageManager:
             self.cluster.create_pool("vm_pool")
             self.ioctx = self.cluster.open_ioctx("vm_pool")
             self.rbd_conn.pool_init(self.ioctx)
-            print("Created the pool")
             self.pools.append("vm_pool", True)
+
             return True
 
         except Exception as e:
+
             print(f"Error creating pool: {e}")
+
             return False
 
     def get_osds(self):

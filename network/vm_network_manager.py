@@ -44,9 +44,8 @@ class VMNetworkManager:
 
             mac = ""
             while (mac not in self._used_macs):
-                mac = '02:%02x:%02x:%02x:%02x:%02x' % tuple(random.randint(0, 255) for _ in range(5))
 
-                print(mac)
+                mac = '02:%02x:%02x:%02x:%02x:%02x' % tuple(random.randint(0, 255) for _ in range(5))
 
                 self._used_macs.append(mac)
 

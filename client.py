@@ -19,7 +19,7 @@ import sys
 import select
 import time
 
-from generated import hdp_pb2, hdp_pb2_grpc
+from compute.generated import hdp_pb2, hdp_pb2_grpc
 
 def print_commands():
 

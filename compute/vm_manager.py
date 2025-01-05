@@ -26,12 +26,13 @@ import re
 import grpc
 from concurrent import futures
 
-from distro_manager import DistroManager
-from vm import VM
+from .distro_manager import DistroManager
+from .vm import VM
+from .generated import hdp_pb2
+from .generated import hdp_pb2_grpc
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from network.vm_network_manager import VMNetworkManager
-from generated import hdp_pb2
-from generated import hdp_pb2_grpc
 
 class VMManager():
 
@@ -108,26 +109,33 @@ class VMManager():
         vm_names = []
         vms = None
         if (status == 1):
+
             vms = self._vms
 
         elif (status == 2):
+
             vms = self._down_vms
 
         elif (status == 3):
+
             vms = self._live_vms
 
         elif (status == 4):
+
             vms = self._stopped_vms
 
         elif (status == 5):
+
             vms = self._running_vms
 
         for i in vms:
+
             vm_names.append(i.name)
 
         return vm_names
     
     def get_vm_pty_file(self, vm_num=-1):
+
         return self._running_vms[vm_num].serial_conn
     
     def create_vm(self):
@@ -171,12 +179,15 @@ class VMManager():
         shutil.rmtree(f"{self._vm_location}/{curr_vm.name}")
 
         if (curr_vm in self._live_vms):
+
             self._live_vms.remove(curr_vm)
 
         if (curr_vm in self._stopped_vms):
+
             self._stopped_vms.remove(curr_vm)
 
         if (curr_vm in self._down_vms):
+
             self._down_vms.remove(curr_vm)
 
         self._vms.remove(curr_vm)
@@ -189,8 +200,6 @@ class VMManager():
 
         curr_vm = self._down_vms[vm_num]
 
-        print(f"Running with: {curr_vm.tap_intf}")
-
         try:
 
             run_vm_cmd = [
@@ -201,7 +210,6 @@ class VMManager():
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
                 "-net", "nic",
                 "-net", "user",
-                "-drive", "file=rbd:vm_pool/vm-drive1,format=raw",
             ]
 
             process = subprocess.Popen(
@@ -221,13 +229,12 @@ class VMManager():
             for pipe in readable:
 
                 for line in pipe:
-                    print(f"QEMU output: {line}")  # Debug print
 
-                    if (match):
-                        break
+                    print(f"QEMU output: {line}")  # Debug print
 
                     match = re.search(r"char device redirected to (/dev/pts/\d+)", line)
                     if (match):
+
                         break
 
             serial_port = match.group(1)
@@ -247,6 +254,7 @@ class VMManager():
             return curr_vm.name
 
         except Exception as e:
+
             print(f"Failed to start vm: {e}")
 
     def shutdown_vm(self, vm_num=-1):
@@ -269,6 +277,7 @@ class VMManager():
                 self._stopped_vms.remove(curr_vm)
 
         except Exception as e:
+
             print(f"Failed to start vm: {e}")
 
         return curr_vm.name
@@ -284,6 +293,7 @@ class VMManager():
             self._send_command_to_vm(curr_vm, "cont")
 
         except Exception as e:
+
             print(f"Failed to start vm: {e}")
 
             self._running_vms.append(curr_vm)
@@ -302,6 +312,7 @@ class VMManager():
             self._send_command_to_vm(curr_vm, "stop")
 
         except Exception as e:
+
             print(f"Failed to start vm: {e}")
 
         self._stopped_vms.append(curr_vm)
@@ -322,6 +333,7 @@ class VMManager():
             status = re.search(r"VM status: (\w+)", cmd_output).group(1)
 
         except Exception as e:
+
             print(f"Failed to start vm: {e}")
 
         return status
@@ -336,6 +348,7 @@ class VMManager():
             print("Input the vm that you want to connect to over serial :")
 
             for i in range(1, len(self._running_vms) + 1):
+
                 print(f"{i}: {self._running_vms[i-1].name}")
 
             vm_num = int(input("")) - 1
@@ -353,9 +366,11 @@ class VMManager():
             return True
 
         except Exception as e:
+
             print(f"Failed to connect to VM: {e}")
 
         except KeyboardInterrupt:
+
             print(f"\n\nExited from: {curr_vm.name}\n")
 
     def _send_command_to_vm(self, curr_vm, cmd):
@@ -384,10 +399,13 @@ class VMManager():
             ], check=True)
 
             print(f"Created disk image: {vm_path}")
+
             return True
     
         except subprocess.CalledProcessError as e:
+
             print(f"Failed to create disk: {e}")
+
             return False
 
     def copy_vm_image(self, vm_id):
@@ -413,11 +431,13 @@ class VMManager():
             )
 
         except Exception as e:
+
             print(f"Failed to create vm disk: {e}")
 
     def write_vm_config(self, vm_id):
 
         try:
+
             with open("conf/instances/micro.conf", "r") as cfile:
 
                 content = cfile.read()
@@ -428,5 +448,7 @@ class VMManager():
                 with open(f"/IGS/compute/vms/{vm_id}/{vm_id}.conf", "w") as fcfile:
 
                     fcfile.write(content)
+
         except Exception as e:
+
             print(f"Failed to open instance config file: {e}")
