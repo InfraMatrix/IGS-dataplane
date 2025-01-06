@@ -15,7 +15,7 @@ syntax = "proto3";
 
 package storage;
 
-service vmm {
+service sm {
 
   rpc GetDisks(GetDisksRequest) returns (GetDisksResponse);
 

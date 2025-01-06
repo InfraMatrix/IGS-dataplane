@@ -20,7 +20,7 @@ class DiskManager:
 
     def __init__(self): ...
 
-    def list_disks(self): ...
+    def get_disks(self): ...
     def _get_host_root_disk(self): ...
     def _get_host_nonroot_disks(self): ...
     def _get_free_disks(self): ...
@@ -41,11 +41,19 @@ class DiskManager:
 
         self._set_ceph_disk_free_space()
 
-    def list_disks(self):
+    def get_disks(self):
 
-        for disk in self.disks:
+        disk_list = []
 
-            print(f"{disk}")
+        for disk in self.free_disks:
+
+            disk_list.append(f"{disk}")
+
+        for disk in self.ceph_disks:
+
+            disk_list.append(f"{disk}")
+
+        return disk_list
 
     def _get_host_root_disk(self):
 

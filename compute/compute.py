@@ -34,7 +34,7 @@ def pick_vm(stub=None, status=None, action=""):
 
     if (num_vms == 0):
 
-        print(f"No VMs to {action}\n")
+        print(f"No VMs to {action}")
 
         return -1
 
@@ -47,11 +47,15 @@ def pick_vm(stub=None, status=None, action=""):
 
             print(f"{i}: {vms[i-1]}")
 
-        vm_num = int(input("")) - 1
+        vm_num = int(input("\n")) - 1
+
+        print("")
 
     return vm_num
 
 def process_compute_command(cmd="", stub=None):
+
+    print("")
 
     if (cmd == "1"):
 
@@ -189,8 +193,6 @@ def process_compute_command(cmd="", stub=None):
     else:
 
         print("Exiting")
-
-    print("\n")
 
 class VMMServicer(compute_pb2_grpc.vmmServicer):
 

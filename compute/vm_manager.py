@@ -151,8 +151,6 @@ class VMManager():
 
         new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf, mac_address=self._network_manager.generate_mac())
 
-        print(new_vm.mac_address)
-
         self._vms.append(new_vm)
         self._down_vms.append(new_vm)
 
@@ -230,7 +228,7 @@ class VMManager():
 
                 for line in pipe:
 
-                    print(f"QEMU output: {line}")  # Debug print
+                    #print(f"QEMU output: {line}")
 
                     match = re.search(r"char device redirected to (/dev/pts/\d+)", line)
                     if (match):

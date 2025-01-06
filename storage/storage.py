@@ -13,19 +13,34 @@
 
 from .generated import storage_pb2, storage_pb2_grpc
 
+from .storage_manager import StorageManager
+
 def process_storage_command(cmd="", stub=None):
 
     if (cmd == "1"):
 
-        #request = storage_pb2.GetDisksRequest()
-        #response = stub.GetDisks(request)
+        request = storage_pb2.GetDisksRequest()
+        response = stub.GetDisks(request)
 
-        #print(f"Disks: {response.disk_names}")
+        print(f"Available and Ceph Disks:\n")
 
-        print(f"Disks:")
+        for disk in response.disk_names:
+
+            print(f"{disk}")
 
     else:
 
         print("Exiting")
 
-    print("\n")
+class SMServicer(storage_pb2_grpc.smServicer):
+
+    def __init__(self):
+
+        self.s_manager = StorageManager()
+        self.server_socket = None
+
+    def GetDisks(self, request, context):
+
+        response = self.s_manager.disk_manager.get_disks()
+
+        return storage_pb2.GetDisksResponse(disk_names=response)

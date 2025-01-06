@@ -30,8 +30,6 @@ class StorageManager:
 
         self.disk_manager = DiskManager()
 
-        print(f"All host disks have been found")
-
         self.cluster = rados.Rados(conffile='/etc/ceph/ceph.conf')
 
         self.cluster_conn = self.cluster.connect()
