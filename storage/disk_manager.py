@@ -15,6 +15,7 @@
 
 import json
 import subprocess
+import parted
 
 class DiskManager:
 
@@ -27,7 +28,8 @@ class DiskManager:
     def _get_ceph_disks(self): ...
     def _set_ceph_disk_free_space(self): ... 
 
-    def create_partition(self, disk_name="", size_gb=0): ...
+    def add_disk(self, disk_name=""): ...
+    def partition_disk(self, disk_name="", size_gb=0): ...
 
     def __init__(self):
 
@@ -147,6 +149,54 @@ class DiskManager:
 
             disk["free_space_gb"] = int(fs / (1024 ** 3))
             disk["num_partitions"] = len(disk["children"])
+
+    def add_disk(self, disk_num=-1, part_size=-1):
+
+        disk = self.free_disks[disk_num]
+
+        self.ceph_disks.append(disk)
+
+        self.free_disks.remove(disk)
+
+        self.partition_disk(disk, part_size)
+
+        return 0
+    
+    def partition_disk(self, disk=None, part_size=-1):
+
+        num_partitions = disk["free_space_gb"] / part_size - 1
+
+        # Change this for production
+        num_partitions = 5
+
+        try:
+
+            parted_device = parted.getDevice(disk["name"])
+
+            parted_disk = parted.freshDisk(parted_device, 'gpt')
+
+            part_len = parted.sizeToSectors(part_size, "GiB", parted_device.sectorSize)
+
+            for i in range(0, num_partitions):
+
+                pregion = parted.Geometry(device=parted_device, start = i*part_len, length=part_len )
+
+                fs = parted.FileSystem(type="ext4", geometry=pregion)
+
+                partition = parted.Partition(disk=parted_disk, type=parted.PARTITION_NORMAL, fs=fs, geometry=pregion)
+
+                parted_disk.addPartition(partition, constraint=parted_device.optimalAlignedConstraint)
+
+            parted_disk.commit()
+
+            for i in range(0, num_partitions):
+
+                name_partition_cmd = ["parted", disk["name"], "name", f"{i+1}", f"ceph_{disk['name'].split('/')[-1]}_{i+1}"]
+                subprocess.run(name_partition_cmd)
+
+        except Exception as e:
+
+            print(f"Failed to partition disk: {e}")
 
     def create_partition(self, disk_name="", size_gb=0):
 

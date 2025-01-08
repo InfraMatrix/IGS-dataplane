@@ -40,7 +40,8 @@ def print_compute_commands():
 
 def print_storage_commands():
 
-    print("\nPress 1 to get available disks")
+    print("\nPress 1 to get system disks")
+    print("Press 2 to add a disk to storage")
 
 def dataplane_shell(compute_stub=None, storage_stub=None):
 

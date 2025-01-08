@@ -18,6 +18,8 @@ package storage;
 service sm {
 
   rpc GetDisks(GetDisksRequest) returns (GetDisksResponse);
+  rpc GetFreeDisks(GetFreeDisksRequest) returns (GetFreeDisksResponse);
+  rpc AddDisk(AddDiskRequest) returns (AddDiskResponse);
 
 }
 
@@ -26,4 +28,19 @@ message GetDisksRequest {
 }
 message GetDisksResponse {
     repeated string disk_names = 1;
+}
+
+message GetFreeDisksRequest {
+  int64 status = 1;
+}
+message GetFreeDisksResponse {
+  repeated string disk_names = 1;
+}
+
+message AddDiskRequest {
+  int64 disk_num = 1;
+  int64 part_size = 2;
+}
+message AddDiskResponse {
+  bool op_status = 1;
 }
