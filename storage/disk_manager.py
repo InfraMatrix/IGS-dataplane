@@ -31,6 +31,8 @@ class DiskManager:
     def add_disk(self, disk_name=""): ...
     def partition_disk(self, disk_name="", size_gb=0): ...
 
+    def attach_disk_to_vm(self, vm_name=""): ...
+
     def __init__(self):
 
         self.host_root_disk = self._get_host_root_disk()
@@ -228,3 +230,11 @@ class DiskManager:
             return None
 
         return None
+
+    def attach_disk_to_vm(self, vm_name=""):
+
+        with open(f"/IGS/compute/vms/{vm_name}/{vm_name}.conf", "a") as conf_file:
+            conf_file.write(f"\n[drive]\nfile = \"/dev/sda1\"\nformat = \"raw\"\n")
+            conf_file.close()
+
+        return 0

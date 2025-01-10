@@ -89,7 +89,7 @@ class StorageManager:
 
             return True
         
-        except:
+        except Exception as e:
 
             pass
 
@@ -99,6 +99,6 @@ class StorageManager:
 
             self.rbd_conn.remove(self.ioctx, name)
 
-        except:
+        except Exception as e:
 
             pass

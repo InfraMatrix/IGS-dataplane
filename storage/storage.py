@@ -15,12 +15,16 @@ from .generated import storage_pb2, storage_pb2_grpc
 
 from .storage_manager import StorageManager
 
-def process_storage_command(cmd="", stub=None):
+from compute.generated import compute_pb2, compute_pb2_grpc
+
+from compute.compute import pick_vm
+
+def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
     if (cmd == "1"):
 
         request = storage_pb2.GetDisksRequest()
-        response = stub.GetDisks(request)
+        response = storage_stub.GetDisks(request)
 
         print(f"Available and Ceph Disks:\n")
 
@@ -31,7 +35,7 @@ def process_storage_command(cmd="", stub=None):
     elif (cmd == "2"):
 
         fdrequest = storage_pb2.GetFreeDisksRequest()
-        fdresponse = stub.GetFreeDisks(fdrequest)
+        fdresponse = storage_stub.GetFreeDisks(fdrequest)
 
         if (len(fdresponse.disk_names) == 0):
 
@@ -62,11 +66,51 @@ def process_storage_command(cmd="", stub=None):
             part_size = int(input("\n"))
 
         adrequest = storage_pb2.AddDiskRequest(disk_num=disk_num, part_size=part_size)
-        adresponse = stub.AddDisk(adrequest)
+        adresponse = storage_stub.AddDisk(adrequest)
 
         if (adresponse.op_status == 0):
 
             print("\nAdded the disk to storage")
+
+        else:
+
+            print("\nFailed to add disk to storage")
+
+    elif (cmd == "3"):
+
+        action="attach a disk to"
+
+        request = compute_pb2.GetVMSRequest(status=2)
+        response = compute_stub.GetVMS(request)
+
+        vms = response.vm_names
+        num_vms = len(vms)
+
+        if (num_vms == 0):
+
+            print(f"No VMs to {action}")
+
+            return -1
+
+        vm_num = -1
+        while (vm_num < 0 or vm_num > num_vms):
+
+            print(f"Input the VM that you want to {action}:")
+
+            for i in range(1, num_vms + 1):
+
+                print(f"{i}: {vms[i-1]}")
+
+            vm_num = int(input("\n")) - 1
+
+        print("")
+
+        adtvmrequest = storage_pb2.AttachDiskToVMRequest(vm_name=vms[vm_num])
+        adtvmresponse = storage_stub.AttachDiskToVM(adtvmrequest)
+
+        if (adtvmresponse.op_status == 0):
+
+            print("\nAdded the disk to the VM. Restart the VM to see the changes.")
 
         else:
 
@@ -103,3 +147,9 @@ class SMServicer(storage_pb2_grpc.smServicer):
         op_status = self.s_manager.disk_manager.add_disk(request.disk_num, request.part_size)
 
         return storage_pb2.AddDiskResponse(op_status=op_status)
+
+    def AttachDiskToVM(self, request, context):
+
+        op_status = self.s_manager.disk_manager.attach_disk_to_vm(request.vm_name)
+
+        return storage_pb2.AttachDiskToVMResponse(op_status=0)

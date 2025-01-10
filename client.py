@@ -42,6 +42,7 @@ def print_storage_commands():
 
     print("\nPress 1 to get system disks")
     print("Press 2 to add a disk to storage")
+    print("Press 3 to add a disk partition to a vm")
 
 def dataplane_shell(compute_stub=None, storage_stub=None):
 
@@ -62,7 +63,7 @@ def dataplane_shell(compute_stub=None, storage_stub=None):
 
             print_storage_commands()
             command = input("\n")
-            storage.process_storage_command(command, storage_stub)
+            storage.process_storage_command(command, storage_stub, compute_stub)
 
         elif (subsystem == "4"):
 
