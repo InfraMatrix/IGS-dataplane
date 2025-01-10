@@ -110,7 +110,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
         if (adtvmresponse.op_status == 0):
 
-            print("\nAdded the disk to the VM. Restart the VM to see the changes.")
+            print("Added disk to the VM. Restart the VM to see the changes.")
 
         else:
 
@@ -129,14 +129,14 @@ class SMServicer(storage_pb2_grpc.smServicer):
 
     def GetDisks(self, request, context):
 
-        disk_names = self.s_manager.disk_manager.get_disks()
+        disk_names = self.s_manager.get_disks()
 
         return storage_pb2.GetDisksResponse(disk_names=disk_names)
 
     def GetFreeDisks(self, request, context):
 
         disk_names = []
-        for i in self.s_manager.disk_manager.free_disks:
+        for i in self.s_manager.free_disks:
 
             disk_names.append(i["name"])
 
@@ -144,12 +144,12 @@ class SMServicer(storage_pb2_grpc.smServicer):
 
     def AddDisk(self, request, context):
 
-        op_status = self.s_manager.disk_manager.add_disk(request.disk_num, request.part_size)
+        op_status = self.s_manager.add_disk(request.disk_num, request.part_size)
 
         return storage_pb2.AddDiskResponse(op_status=op_status)
 
     def AttachDiskToVM(self, request, context):
 
-        op_status = self.s_manager.disk_manager.attach_disk_to_vm(request.vm_name)
+        op_status = self.s_manager.attach_disk_to_vm(request.vm_name)
 
         return storage_pb2.AttachDiskToVMResponse(op_status=0)

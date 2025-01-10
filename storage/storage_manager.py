@@ -13,8 +13,6 @@
 # license and result in immediate, automatic termination of all rights granted
 # hereunder.
 
-import rados
-import rbd
 import sys
 import os
 import json
@@ -23,82 +21,28 @@ from .disk_manager import DiskManager
 
 class StorageManager:
 
-    def create_pool(self, name): ...
-    def get_osds(self): ...
+    def __init__(self): ...
 
-    def __init__(self, conf="/etc/ceph/ceph.conf"):
+    def get_disks(self): ...
+
+    def add_disk(self, disk_num, part_size): ...
+
+    def attach_disk_to_vm(self, vm_name): ...
+
+    def __init__(self):
 
         self.disk_manager = DiskManager()
 
-        self.cluster = rados.Rados(conffile='/etc/ceph/ceph.conf')
+        self.free_disks = self.disk_manager.free_disks
 
-        self.cluster_conn = self.cluster.connect()
+    def get_disks(self):
 
-        self.rbd_conn = rbd.RBD()
+        return self.disk_manager.get_disks()
+    
+    def add_disk(self, disk_num, part_size):
 
-        self.pools = self.cluster.list_pools()
-        if "vm_pool" not in self.pools:
+        return self.disk_manager.add_disk(disk_num, part_size)
 
-            self.create_pool(name="vm_pool")
+    def attach_disk_to_vm(self, vm_name):
 
-    def create_pool(self, name=""):
-
-        try:
-
-            self.cluster.create_pool("vm_pool")
-            self.ioctx = self.cluster.open_ioctx("vm_pool")
-            self.rbd_conn.pool_init(self.ioctx)
-            self.pools.append("vm_pool", True)
-
-            return True
-
-        except Exception as e:
-
-            print(f"Error creating pool: {e}")
-
-            return False
-
-    def get_osds(self):
-
-        try:
-
-            cmd = json.dumps({
-                "prefix": "osd ls",
-                "format": "json"
-            })
-
-            ret, outbuf, outs = self.cluster.mon_command(cmd, b'')
-
-            osds = json.loads(outbuf)
-
-            return osds
-
-        except Exception as e:
-
-            print(e)
-
-            return []
-
-    def create_disk(self, name="", size=""):
-
-        try:
-
-            ts = size * 1024 * 1024 * 1024
-
-            self.rbd_conn.create(self.ioctx, name, ts)
-
-            return True
-        
-        except Exception as e:
-
-            pass
-
-    def delete_disk(self, name=""):
-
-        try:
-
-            self.rbd_conn.remove(self.ioctx, name)
-
-        except Exception as e:
-
-            pass
+        return self.disk_manager.attach_disk_to_vm(vm_name)

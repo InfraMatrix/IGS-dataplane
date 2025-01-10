@@ -228,7 +228,7 @@ class VMManager():
 
                 for line in pipe:
 
-                    #print(f"QEMU output: {line}")
+                    print(f"QEMU output: {line}")
 
                     match = re.search(r"char device redirected to (/dev/pts/\d+)", line)
                     if (match):
