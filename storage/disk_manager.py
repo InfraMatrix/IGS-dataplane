@@ -23,8 +23,6 @@ class DiskManager:
 
     def __init__(self): ...
 
-    def dump_config(self): ...
-
     # Server functions
     def get_disks(self): ...
     def get_free_disks(self): ...
@@ -34,7 +32,9 @@ class DiskManager:
     def attach_disk_to_vm(self, vm_name=""): ...
     def detach_disk_from_vm(self, vm_name="", disk_name=""): ...
 
-    # Setup functions
+    # Setup and maintenance functions
+    def dump_config(self): ...
+
     def _get_host_root_disk(self): ...
     def _get_host_nonroot_disks(self): ...
     def _get_scaler_disks(self): ...
@@ -44,7 +44,6 @@ class DiskManager:
 
     def __init__(self):
 
-
         self.disk_config = {
             "host_root_disk": self._get_host_root_disk(),
             "host_disks": self._get_host_nonroot_disks(),
@@ -52,21 +51,16 @@ class DiskManager:
         }
 
         self.disk_config["free_disks"] = self._get_free_disks()
-
         self.disk_config["scaler_disks"] = self._get_scaler_disks()
-
         self.disk_config["scaler_partitions"] = self._get_available_scaler_partitions()
 
     def dump_config(self):
-
         print(yaml.dump(self.disk_config))
 
     def get_disks(self):
 
         disk_list = []
-
         for disk in self.disk_config["host_disks"]:
-
             disk_list.append(disk["name"])
 
         return disk_list
@@ -74,9 +68,7 @@ class DiskManager:
     def get_free_disks(self):
 
         disk_list = []
-
         for disk in self.disk_config["free_disks"]:
-
             disk_list.append(disk["name"])
 
         return disk_list
@@ -84,7 +76,6 @@ class DiskManager:
     def _get_host_root_disk(self):
 
         try:
-
             cmd = ["findmnt", "--noheadings", "--output", "SOURCE", "/"]
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             rp = result.stdout.strip()
@@ -94,7 +85,6 @@ class DiskManager:
             return f"/dev/{result.stdout.strip()}"
         
         except Exception as e:
-
             print(f"Failed to get root host disk: {e}")
 
         return ""
