@@ -18,15 +18,20 @@ import subprocess
 import parted
 import yaml
 import fcntl
+import time
 
 class DiskManager:
 
     def __init__(self): ...
 
+    def set_state(self): ...
+
     # Server functions
     def get_disks(self): ...
     def get_free_disks(self): ...
-    def add_disk(self, disk_name=""): ...
+    def get_scaler_disks(self): ...
+    def add_disk(self, disk_num, part_size): ...
+    def remove_disk(self, disk_num): ...
     def partition_disk(self, disk_name="", size_gb=0): ...
     def get_vm_disks(self, vm_name=""): ...
     def attach_disk_to_vm(self, vm_name=""): ...
@@ -43,6 +48,12 @@ class DiskManager:
     def _write_vm_disk_configuration(self): ...
 
     def __init__(self):
+
+        self.disk_config = {}
+
+        self.set_state()
+
+    def set_state(self):
 
         self.disk_config = {
             "host_root_disk": self._get_host_root_disk(),
@@ -69,6 +80,14 @@ class DiskManager:
 
         disk_list = []
         for disk in self.disk_config["free_disks"]:
+            disk_list.append(disk["name"])
+
+        return disk_list
+    
+    def get_scaler_disks(self):
+
+        disk_list = []
+        for disk in self.disk_config["scaler_disks"]:
             disk_list.append(disk["name"])
 
         return disk_list
@@ -126,7 +145,7 @@ class DiskManager:
 
         for disk in self.disk_config["host_disks"]:
 
-            has_ceph_part = False
+            has_igs_part = False
 
             if ("children" in disk):
 
@@ -134,17 +153,17 @@ class DiskManager:
 
                     partlabel = partition.get("partlabel")
 
-                    if (partlabel and partlabel.startswith("ceph")):
+                    if (partlabel and partlabel.startswith("igs")):
 
-                        has_ceph_part = True
+                        has_igs_part = True
 
                         break
 
-                if (has_ceph_part):
+                if (has_igs_part):
 
                     scaler_disks.append(disk)
                     
-                has_ceph_part = False
+                has_igs_part = False
 
         return scaler_disks
 
@@ -183,14 +202,37 @@ class DiskManager:
 
         disk = self.disk_config["free_disks"][disk_num]
 
-        self.disk_config["scaler_disks"].append(disk)
-
-        self.disk_config["free_disks"].remove(disk)
-
         self.partition_disk(disk, part_size)
 
+        self.set_state()
+
         return 0
-    
+
+    def remove_disk(self, disk_num=-1):
+
+        disk = self.disk_config["scaler_disks"][disk_num]
+
+        disk_parts = []
+        for part in disk["children"]:
+            disk_parts.append(part)
+
+        for vm_name in self.disk_config["vm_disks"].keys():
+            for part in self.disk_config["vm_disks"][vm_name]:
+                if part in disk_parts:
+                    self.detach_disk_from_vm(vm_name=vm_name, vm_disk_name=part["name"])
+
+        self.disk_config["scaler_disks"].remove(disk)
+        self.disk_config["free_disks"].append(disk)
+
+        try:
+            subprocess.run(['sudo', 'wipefs', '--all', disk["name"]], check=True)
+        except Exception as e:
+            print(f"Unable to wipe disk: {e}")
+
+        self.set_state()
+
+        return 0
+
     def partition_disk(self, disk=None, part_size=-1):
 
         fs = disk["size"]
@@ -224,8 +266,10 @@ class DiskManager:
 
             for i in range(0, num_partitions):
 
-                name_partition_cmd = ["parted", disk["name"], "name", f"{i+1}", f"ceph_{disk['name'].split('/')[-1]}_{i+1}"]
+                name_partition_cmd = ["parted", disk["name"], "name", f"{i+1}", f"igs_{disk['name'].split('/')[-1]}_{i+1}"]
                 subprocess.run(name_partition_cmd)
+
+            subprocess.run(['udevadm', 'settle'])
 
         except Exception as e:
 
@@ -234,37 +278,6 @@ class DiskManager:
             return -1
         
         return 0
-
-    def create_partition(self, disk_name="", size_gb=0):
-
-        if (size_gb == 0 or disk_name == ""):
-
-            return None
-
-        scaler_disk = None
-        for disk in self.free_disks:
-
-            if (disk_name == disk["name"]):
-
-                self.free_disks.remove(disk)
-
-                self.scaler_disks.append(disk)
-
-                scaler_disk = disk
-
-        if (scaler_disk == None):
-
-            for disk in self.scaler_disks:
-
-                if (disk_name == disk["name"]):
-
-                    scaler_disk = disk
-
-        if (scaler_disk == None or size_gb > scaler_disk["free_space_gb"]):
-
-            return None
-
-        return None
 
     def _get_partitions(self):
 

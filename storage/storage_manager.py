@@ -27,6 +27,7 @@ class StorageManager:
     def get_free_disks(self): ...
 
     def add_disk(self, disk_num, part_size): ...
+    def remove_disk(self, disk_name): ...
 
     def get_vm_disks(self, vm_name): ...
     def attach_disk_to_vm(self, vm_name): ...
@@ -44,9 +45,17 @@ class StorageManager:
 
         return self.disk_manager.get_free_disks()
 
+    def get_scaler_disks(self):
+
+        return self.disk_manager.get_scaler_disks()
+
     def add_disk(self, disk_num, part_size):
 
         return self.disk_manager.add_disk(disk_num, part_size)
+
+    def remove_disk(self, disk_num):
+
+        return self.disk_manager.remove_disk(disk_num)
 
     def get_vm_disks(self, vm_name):
 

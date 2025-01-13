@@ -26,7 +26,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
         request = storage_pb2.GetDisksRequest()
         response = storage_stub.GetDisks(request)
 
-        print(f"Available and Ceph Disks:\n")
+        print(f"\nAvailable and IGS Disks:\n")
 
         for disk in response.disk_names:
 
@@ -39,14 +39,14 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
         if (len(fdresponse.disk_names) == 0):
 
-            print(f"No disks to add storage")
+            print(f"\nNo disks to add to IGS")
 
             return
 
         disk_num = -1
         while (disk_num < 0 or disk_num >= len(fdresponse.disk_names)):
 
-            print("Please select a disk to add to storage:")
+            print("Please select a disk to add to IGS:")
 
             count = 1
             for i in fdresponse.disk_names:
@@ -61,7 +61,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
         disk_increment=5
         while(part_size < 0 or part_size > 50 or part_size % 5 != 0):
 
-            print("Please give a size of the partitions for the disk in GB(increments of 5), greater than 0 and less than or equal to 50:")
+            print("\nPlease give a size of the partitions for the disk in GB(increments of 5), greater than 0 and less than or equal to 50:")
 
             part_size = int(input("\n"))
 
@@ -78,6 +78,44 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
     elif (cmd == "3"):
 
+        gsdrequest = storage_pb2.GetScalerDisksRequest()
+        gsdresponse = storage_stub.GetScalerDisks(gsdrequest)
+
+        print('1')
+
+        disk_names = gsdresponse.disk_names
+
+        if (len(disk_names) == 0):
+            print(f"\nNo disks to remove from IGS")
+            return
+
+        disk_num = -1
+        while (disk_num < 0 or disk_num >= len(disk_names)):
+
+            print("Please select a disk to remove from IGS:")
+
+            count = 1
+            for i in gsdresponse.disk_names:
+
+                print(f"{count}: {i}")
+
+                count += 1
+
+            disk_num = int(input("\n")) - 1
+
+        rdrequest = storage_pb2.RemoveDiskRequest(disk_num=disk_num)
+        rdresponse = storage_stub.RemoveDisk(rdrequest)
+
+        if (rdresponse.op_status == 0):
+
+            print("\nRemoved the disk from IGS")
+
+        else:
+
+            print("\nFailed to remove the disk from IGS")
+
+    elif (cmd == "4"):
+
         action="attach a disk to"
 
         request = compute_pb2.GetVMSRequest(status=1)
@@ -88,7 +126,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
         if (num_vms == 0):
 
-            print(f"No VMs to {action}")
+            print(f"\nNo VMs to {action}")
 
             return -1
 
@@ -116,7 +154,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
             print("\nFailed to add disk to storage")
 
-    elif (cmd == "4"):
+    elif (cmd == "5"):
 
         action="remove a disk from"
 
@@ -128,7 +166,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
         if (num_vms == 0):
 
-            print(f"No VMs to {action}")
+            print(f"\nNo VMs to {action}")
 
             return -1
 
@@ -153,7 +191,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
         if (num_vm_disks == 0):
 
-            print(f"No disks to detach from the VM")
+            print(f"\nNo disks to detach from the VM")
 
             return -1
 
@@ -205,6 +243,12 @@ class SMServicer(storage_pb2_grpc.smServicer):
 
         return storage_pb2.GetFreeDisksResponse(disk_names=disk_names)
 
+    def GetScalerDisks(self, request, context):
+
+        disk_names = self.s_manager.get_scaler_disks()
+
+        return storage_pb2.GetScalerDisksResponse(disk_names=disk_names)
+
     def GetVMDisks(self, request, context):
 
         vm_disk_names = self.s_manager.get_vm_disks(request.vm_name)
@@ -215,6 +259,11 @@ class SMServicer(storage_pb2_grpc.smServicer):
 
         op_status = self.s_manager.add_disk(request.disk_num, request.part_size)
 
+        return storage_pb2.AddDiskResponse(op_status=op_status)
+
+    def RemoveDisk(self, request, context):
+
+        op_status = self.s_manager.remove_disk(request.disk_num)
         return storage_pb2.AddDiskResponse(op_status=op_status)
 
     def AttachDiskToVM(self, request, context):

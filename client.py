@@ -41,9 +41,10 @@ def print_compute_commands():
 def print_storage_commands():
 
     print("\nPress 1 to get system disks")
-    print("Press 2 to add a disk to storage")
-    print("Press 3 to attach a disk partition to a vm")
-    print("Press 4 to detach a disk partition from a vm")
+    print("Press 2 to add a disk to IGS")
+    print("Press 3 to remove a disk from IGS")
+    print("Press 4 to attach a disk partition to a vm")
+    print("Press 5 to detach a disk partition from a vm")
 
 def dataplane_shell(compute_stub=None, storage_stub=None):
 

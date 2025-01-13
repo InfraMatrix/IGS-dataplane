@@ -19,7 +19,9 @@ service sm {
 
   rpc GetDisks(GetDisksRequest) returns (GetDisksResponse);
   rpc GetFreeDisks(GetFreeDisksRequest) returns (GetFreeDisksResponse);
+  rpc GetScalerDisks(GetScalerDisksRequest) returns (GetScalerDisksResponse);
   rpc AddDisk(AddDiskRequest) returns (AddDiskResponse);
+  rpc RemoveDisk(RemoveDiskRequest) returns (RemoveDiskResponse);
   rpc GetVMDisks(GetVMDisksRequest) returns (GetVMDisksResponse);
   rpc AttachDiskToVM(AttachDiskToVMRequest) returns (AttachDiskToVMResponse);
   rpc DetachDiskFromVM(DetachDiskFromVMRequest) returns (DetachDiskFromVMResponse);
@@ -40,11 +42,25 @@ message GetFreeDisksResponse {
   repeated string disk_names = 1;
 }
 
+message GetScalerDisksRequest {
+  int64 status = 1;
+}
+message GetScalerDisksResponse {
+  repeated string disk_names = 1;
+}
+
 message AddDiskRequest {
   int64 disk_num = 1;
   int64 part_size = 2;
 }
 message AddDiskResponse {
+  bool op_status = 1;
+}
+
+message RemoveDiskRequest {
+  int64 disk_num = 1;
+}
+message RemoveDiskResponse {
   bool op_status = 1;
 }
 
