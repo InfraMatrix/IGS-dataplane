@@ -80,7 +80,7 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
         action="attach a disk to"
 
-        request = compute_pb2.GetVMSRequest(status=2)
+        request = compute_pb2.GetVMSRequest(status=1)
         response = compute_stub.GetVMS(request)
 
         vms = response.vm_names
@@ -116,6 +116,72 @@ def process_storage_command(cmd="", storage_stub=None, compute_stub=None):
 
             print("\nFailed to add disk to storage")
 
+    elif (cmd == "4"):
+
+        action="remove a disk from"
+
+        request = compute_pb2.GetVMSRequest(status=1)
+        response = compute_stub.GetVMS(request)
+
+        vms = response.vm_names
+        num_vms = len(vms)
+
+        if (num_vms == 0):
+
+            print(f"No VMs to {action}")
+
+            return -1
+
+        vm_num = -1
+        while (vm_num < 0 or vm_num >= num_vms):
+
+            print(f"Input the VM that you want to {action}:")
+
+            for i in range(1, num_vms + 1):
+
+                print(f"{i}: {vms[i-1]}")
+
+            vm_num = int(input("\n")) - 1
+
+        print("")
+
+        gvmdrequest = storage_pb2.GetVMDisksRequest(vm_name=vms[vm_num])
+        gvmdresponse = storage_stub.GetVMDisks(gvmdrequest)
+
+        vm_disks = gvmdresponse.vm_disk_names
+        num_vm_disks = len(vm_disks)
+
+        if (num_vm_disks == 0):
+
+            print(f"No disks to detach from the VM")
+
+            return -1
+
+        vm_disk_num = -1
+        while (vm_disk_num < 0 or vm_disk_num >= num_vm_disks):
+
+            print(f"Input the disk that you want to remove from the VM:")
+
+            for i in range(1, num_vm_disks + 1):
+
+                print(f"{i}: {vm_disks[i-1]}")
+
+            vm_disk_num = int(input("\n")) - 1
+
+        selected_vm = vms[vm_num]
+        selected_disk = vm_disks[vm_disk_num]
+
+        ddfvmrequest = storage_pb2.DetachDiskFromVMRequest(vm_name=selected_vm, vm_disk_name=selected_disk)
+        ddfvmresponse = storage_stub.DetachDiskFromVM(ddfvmrequest)
+
+        if (ddfvmresponse.op_status == 0):
+
+            print("\nDetached disk from VM. Restart the VM to see the changes.")
+
+        else:
+
+            print("\nFailed to detach disk from VM")
+
     else:
 
         print("Exiting")
@@ -129,18 +195,21 @@ class SMServicer(storage_pb2_grpc.smServicer):
 
     def GetDisks(self, request, context):
 
-        disk_names = self.s_manager.get_disks()
+        disk_names = self.s_manager.get_free_disks()
 
         return storage_pb2.GetDisksResponse(disk_names=disk_names)
 
     def GetFreeDisks(self, request, context):
 
-        disk_names = []
-        for i in self.s_manager.free_disks:
-
-            disk_names.append(i["name"])
+        disk_names = self.s_manager.get_free_disks()
 
         return storage_pb2.GetFreeDisksResponse(disk_names=disk_names)
+
+    def GetVMDisks(self, request, context):
+
+        vm_disk_names = self.s_manager.get_vm_disks(request.vm_name)
+
+        return storage_pb2.GetVMDisksResponse(vm_disk_names=vm_disk_names)
 
     def AddDisk(self, request, context):
 
@@ -152,4 +221,10 @@ class SMServicer(storage_pb2_grpc.smServicer):
 
         op_status = self.s_manager.attach_disk_to_vm(request.vm_name)
 
-        return storage_pb2.AttachDiskToVMResponse(op_status=0)
+        return storage_pb2.AttachDiskToVMResponse(op_status=op_status)
+
+    def DetachDiskFromVM(self, request, context):
+
+        op_status = self.s_manager.detach_disk_from_vm(request.vm_name, request.vm_disk_name)
+
+        return storage_pb2.DetachDiskFromVMResponse(op_status=op_status)

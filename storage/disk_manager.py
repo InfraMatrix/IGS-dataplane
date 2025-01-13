@@ -23,97 +23,61 @@ class DiskManager:
 
     def __init__(self): ...
 
-    def read_config(self): ...
-    def write_config(self, config_path, config): ...
+    def dump_config(self): ...
 
+    # Server functions
     def get_disks(self): ...
-    def _get_host_root_disk(self): ...
-    def _get_host_nonroot_disks(self): ...
-    def _get_free_disks(self): ...
-    def _get_scaler_disks(self): ...
-    def _set_scaler_disk_free_space(self): ... 
-
+    def get_free_disks(self): ...
     def add_disk(self, disk_name=""): ...
     def partition_disk(self, disk_name="", size_gb=0): ...
-
-    def _get_partitions(self): ...
-    def _get_available_partitions(self): ...
-
+    def get_vm_disks(self, vm_name=""): ...
     def attach_disk_to_vm(self, vm_name=""): ...
+    def detach_disk_from_vm(self, vm_name="", disk_name=""): ...
+
+    # Setup functions
+    def _get_host_root_disk(self): ...
+    def _get_host_nonroot_disks(self): ...
+    def _get_scaler_disks(self): ...
+    def _get_available_scaler_partitions(self): ...
+    def _get_vm_disks(self): ...
+    def _write_vm_disk_configuration(self): ...
 
     def __init__(self):
 
-        self.host_root_disk = self._get_host_root_disk()
 
-        self.disks = self._get_host_nonroot_disks()
+        self.disk_config = {
+            "host_root_disk": self._get_host_root_disk(),
+            "host_disks": self._get_host_nonroot_disks(),
+            "vm_disks": self._get_vm_disks() or {},
+        }
 
-        self.free_disks = self._get_free_disks()
+        self.disk_config["free_disks"] = self._get_free_disks()
 
-        self.scaler_disks = self._get_scaler_disks()
+        self.disk_config["scaler_disks"] = self._get_scaler_disks()
 
-        self._set_scaler_disk_free_space()
+        self.disk_config["scaler_partitions"] = self._get_available_scaler_partitions()
 
-        self.partitions = self._get_partitions()
+    def dump_config(self):
 
-        self.disk_config = self.read_config(config_path=f"/IGS/storage/storage.conf")
-
-        if ("storage_disks" not in self.disk_config):
-
-            self.disk_config["storage_disks"] = {}
-
-            self.disk_config["vm_disks"] = {}
-
-            self.write_config(config_path=f"/IGS/storage/storage.conf", config=self.disk_config)
-
-        self.available_partitions = self._get_available_partitions()
-
-    def read_config(self, config_path=""):
-
-        config = None
-
-        try:
-
-            with open(config_path, "r") as f:
-
-                fcntl.flock(f.fileno(), fcntl.LOCK_SH)
-
-                config = yaml.safe_load(f) or {}
-
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-
-        except Exception as e:
-
-            print(f"Failed to load storage configuration: {e}")
-
-        return config
-
-    def write_config(self, config_path, config):
-
-        try:
-
-            with open(config_path, "w") as f:
-
-                fcntl.flock(f.fileno(), fcntl.LOCK_SH)
-
-                yaml.safe_dump(config, f, default_flow_style=False)
-
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-
-        except Exception as e:
-
-            print(f"Failed to write storage configuration: {e}")
+        print(yaml.dump(self.disk_config))
 
     def get_disks(self):
 
         disk_list = []
 
-        for disk in self.free_disks:
+        for disk in self.disk_config["host_disks"]:
 
-            disk_list.append(f"{disk}")
+            disk_list.append(disk["name"])
 
-        for disk in self.scaler_disks:
+        return disk_list
+    
+    def get_free_disks(self):
 
-            disk_list.append(f"{disk}")
+        disk_list = []
+
+        for disk in self.disk_config["free_disks"]:
+
+            disk_list.append(disk["name"])
 
         return disk_list
 
@@ -132,6 +96,8 @@ class DiskManager:
         except Exception as e:
 
             print(f"Failed to get root host disk: {e}")
+
+        return ""
 
     def _get_host_nonroot_disks(self):
 
@@ -154,7 +120,7 @@ class DiskManager:
 
         free_disks = []
 
-        for disk in self.disks:
+        for disk in self.disk_config["host_disks"]:
 
             if (disk["type"] != "disk" or disk.get("mountpoint") or 
                 disk.get("fstype") or disk.get("children")):
@@ -164,12 +130,11 @@ class DiskManager:
 
         return free_disks
 
-    
     def _get_scaler_disks(self):
 
         scaler_disks = []
 
-        for disk in self.disks:
+        for disk in self.disk_config["host_disks"]:
 
             has_ceph_part = False
 
@@ -193,36 +158,54 @@ class DiskManager:
 
         return scaler_disks
 
-    def _set_scaler_disk_free_space(self):
+    def _get_available_scaler_partitions(self):
 
-        for disk in self.free_disks:
+        parts = []
+        for disk in self.disk_config["scaler_disks"]:
+            for part in disk["children"]:
+                parts.append(part)
 
-            disk["free_space_gb"] = int(disk["size"] / (1024 ** 3))
+        for vm in self.disk_config["vm_disks"]:
+            for part in self.disk_config["vm_disks"][vm]:
+                for disk in self.disk_config["scaler_disks"]:
+                    if part in disk["children"]:
+                        parts.remove(part)
 
-        for disk in self.scaler_disks:
+        return parts
 
-            fs = disk["size"]
+    def _get_vm_disks(self):
 
-            for partition in disk["children"]:
+        try:
+            with open('/IGS/storage/vm_disks.yaml', 'r') as f:
 
-                fs -= partition["size"]
+                return yaml.safe_load(f)
 
-            disk["free_space_gb"] = int(fs / (1024 ** 3))
-            disk["num_partitions"] = len(disk["children"])
+        except Exception as e:
+            pass
+
+    def _write_vm_disk_configuration(self):
+
+        with open('/IGS/storage/vm_disks.yaml', 'w') as f:
+
+            yaml.safe_dump(self.disk_config["vm_disks"], f, default_flow_style=False)
 
     def add_disk(self, disk_num=-1, part_size=-1):
 
-        disk = self.free_disks[disk_num]
+        disk = self.disk_config["free_disks"][disk_num]
 
-        self.scaler_disks.append(disk)
+        self.disk_config["scaler_disks"].append(disk)
 
-        self.free_disks.remove(disk)
+        self.disk_config["free_disks"].remove(disk)
 
         self.partition_disk(disk, part_size)
 
         return 0
     
     def partition_disk(self, disk=None, part_size=-1):
+
+        fs = disk["size"]
+
+        disk["free_space_gb"] = int(fs / (1024 ** 3))
 
         num_partitions = disk["free_space_gb"] / part_size - 1
 
@@ -257,6 +240,10 @@ class DiskManager:
         except Exception as e:
 
             print(f"Failed to partition disk: {e}")
+
+            return -1
+        
+        return 0
 
     def create_partition(self, disk_name="", size_gb=0):
 
@@ -322,28 +309,75 @@ class DiskManager:
 
         return available_partitions
 
-    def attach_disk_to_vm(self, vm_name=""):
-
-        if (len(self.available_partitions) == 0):
-
-            return -1
-
-        part = self.available_partitions[0]
-
-        self.available_partitions.remove(part)
+    def get_vm_disks(self, vm_name=""):
 
         if (vm_name not in self.disk_config["vm_disks"].keys()):
+            return []
 
+        vm_disk_names = []
+        for part in self.disk_config["vm_disks"][vm_name]:
+            vm_disk_names.append(part["name"])
+
+        return vm_disk_names
+
+    def attach_disk_to_vm(self, vm_name=""):
+
+        if (len(self.disk_config["scaler_partitions"]) == 0):
+            return -1
+        
+        part = self.disk_config["scaler_partitions"][0]
+        
+        if (vm_name not in self.disk_config["vm_disks"].keys()):
             self.disk_config["vm_disks"][vm_name] = []
 
-        self.disk_config["vm_disks"][vm_name].append(part["name"])
+        self.disk_config["vm_disks"][vm_name].append(part)
 
-        self.write_config(config_path=f"/IGS/storage/storage.conf", config=self.disk_config)
+        self.disk_config["scaler_partitions"].remove(part)
+
+        self._write_vm_disk_configuration()
 
         with open(f"/IGS/compute/vms/{vm_name}/{vm_name}.conf", "a") as conf_file:
 
             conf_file.write(f"\n[drive]\nfile = \"{part['name']}\"\nformat = \"raw\"\n")
 
             conf_file.close()
+
+        return 0
+
+    def detach_disk_from_vm(self, vm_name="", vm_disk_name=""):
+
+        if (vm_name not in self.disk_config["vm_disks"].keys()):
+            return -1
+
+        vm_part = None
+        for part in self.disk_config["vm_disks"][vm_name]:
+            if (vm_disk_name == part["name"]):
+                vm_part = part
+            if (vm_part):
+                break
+
+        self.disk_config["vm_disks"][vm_name].remove(vm_part)
+        self.disk_config["scaler_partitions"].append(vm_part)
+
+        vm_conf_fname = f"/IGS/compute/vms/{vm_name}/{vm_name}.conf"
+        remove_string = f"\n[drive]\nfile = \"{vm_disk_name}\"\nformat = \"raw\"\n"
+
+        file_content = ""
+
+        with open(vm_conf_fname, "r") as conf_file:
+
+            file_content = conf_file.read()
+
+            file_content = file_content.replace(remove_string, "")
+
+            conf_file.close()
+
+        with open(vm_conf_fname, "w") as conf_file:
+
+            conf_file.write(file_content)
+
+            conf_file.close()
+
+        self._write_vm_disk_configuration()
 
         return 0

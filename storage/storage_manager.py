@@ -24,25 +24,38 @@ class StorageManager:
     def __init__(self): ...
 
     def get_disks(self): ...
+    def get_free_disks(self): ...
 
     def add_disk(self, disk_num, part_size): ...
 
+    def get_vm_disks(self, vm_name): ...
     def attach_disk_to_vm(self, vm_name): ...
+    def detach_disk_from_vm(self, vm_name): ...
 
     def __init__(self):
 
         self.disk_manager = DiskManager()
 
-        self.free_disks = self.disk_manager.free_disks
-
     def get_disks(self):
 
         return self.disk_manager.get_disks()
-    
+
+    def get_free_disks(self):
+
+        return self.disk_manager.get_free_disks()
+
     def add_disk(self, disk_num, part_size):
 
         return self.disk_manager.add_disk(disk_num, part_size)
 
+    def get_vm_disks(self, vm_name):
+
+        return self.disk_manager.get_vm_disks(vm_name)
+
     def attach_disk_to_vm(self, vm_name):
 
         return self.disk_manager.attach_disk_to_vm(vm_name)
+
+    def detach_disk_from_vm(self, vm_name, vm_disk_name):
+
+        return self.disk_manager.detach_disk_from_vm(vm_name, vm_disk_name)
