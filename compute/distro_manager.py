@@ -21,22 +21,17 @@ from tqdm import tqdm
 class DistroManager:
 
     def __init__(self):
-
         self.iso_location = "/IGS/compute/isos"
         os.makedirs(self.iso_location, exist_ok=True)
 
     def download_ubuntu_iso(self, version="22.04.5"):
-
         base_url = f"https://releases.ubuntu.com"
         iso_fname = f"ubuntu-{version}-live-server-amd64.iso"
         iso_url = f"{base_url}/{version}/{iso_fname}"
-
         iso_path = f"{self.iso_location}/ubuntu/{iso_fname}"
 
         if os.path.exists(f"{self.iso_location}/ubuntu/ubuntu-{version}-live-server-amd64.iso"):
-
             print("Ubuntu iso already exists")
-
             return
 
         os.makedirs(self.iso_location + "/ubuntu/", exist_ok=True)
@@ -50,13 +45,9 @@ class DistroManager:
         bsize = 1024 ** 2
 
         with open(iso_path, 'wb') as f:
-
             with tqdm(total=tsize, unit='B', unit_scale=True) as pbar:
-
                 for data in response.iter_content(bsize):
-
                     f.write(data)
-
                     pbar.update(len(data))
 
         print("Finished downloading Ubuntu iso")

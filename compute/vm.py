@@ -20,7 +20,6 @@ class VM:
     def __init__(self): ...
 
     def __init__(self, vm_name, disk_location, tap_intf=None, hv_conn=None, serial_conn=None, mac_address=None):
-
         self.name = vm_name
         self.disk_location = disk_location
         self.tap_intf = tap_intf

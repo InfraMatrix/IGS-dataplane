@@ -21,9 +21,7 @@ from compute import compute
 from storage import storage
 
 def serve():
-
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-
     compute.compute_pb2_grpc.add_vmmServicer_to_server(
         compute.VMMServicer(), server
     )
@@ -40,5 +38,4 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == "__main__":
-
     serve()

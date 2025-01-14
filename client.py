@@ -21,14 +21,12 @@ from compute import compute
 from storage import storage
 
 def print_subsytems():
-
     print("\nPress 1 to invoke compute subsystem")
     print("Press 2 to invoke network subsystem")
     print("Press 3 to invoke storage subsystem")
     print("Press 4 to exit the dataplane")
 
 def print_compute_commands():
-
     print("\nPress 1 to create a VM")
     print("Press 2 to delete a VM")
     print("Press 3 to start a VM")
@@ -39,7 +37,6 @@ def print_compute_commands():
     print("Press 8 to connect to a VM")
 
 def print_storage_commands():
-
     print("\nPress 1 to get system disks")
     print("Press 2 to add a disk to IGS")
     print("Press 3 to remove a disk from IGS")
@@ -47,40 +44,29 @@ def print_storage_commands():
     print("Press 5 to detach a disk partition from a vm")
 
 def dataplane_shell(compute_stub=None, storage_stub=None):
-
     print("\nWelcome to the dataplane shell\n")
 
     while(True):
-
         print_subsytems()
         subsystem = input("\n")
-
         if (subsystem == "1"):
-
             print_compute_commands()
             command = input("\n")
             compute.process_compute_command(command, compute_stub)
 
         elif (subsystem == "3"):
-
             print_storage_commands()
             command = input("\n")
             storage.process_storage_command(command, storage_stub, compute_stub)
 
         elif (subsystem == "4"):
-
             exit()
 
 def main():
-
     channel = grpc.insecure_channel('localhost:50051')
-    
     vmm_stub = compute.compute_pb2_grpc.vmmStub(channel)
-
     storage_stub = storage.storage_pb2_grpc.smStub(channel)
-
     dataplane_shell(vmm_stub, storage_stub)
 
 if __name__ == '__main__':
-
     main()
