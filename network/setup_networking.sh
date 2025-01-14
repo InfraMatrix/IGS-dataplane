@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2024 InfraMatrix. All rights reserved.
+# Copyright (c) 2025 InfraMatrix. All rights reserved.
 
 # The user ("Licensee") is hereby granted permission to use this software and
 # associated documentation files (the "Software"),
@@ -12,5 +12,3 @@
 # and any such unauthorized distribution shall constitute a material breach of this
 # license and result in immediate, automatic termination of all rights granted
 # hereunder.
-
-#!/bin/bash
