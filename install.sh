@@ -13,13 +13,76 @@
 # license and result in immediate, automatic termination of all rights granted
 # hereunder.
 
-sudo apt install -y ceph ceph-common ceph-volume cephadm
+install_python_dependencies()
+{
+    sudo apt-get install -y \
+    python3-full \
+    python3-pip \
+    python3-dev \
+    python3-parted \
+    libparted-dev \
+    libvirt-dev \
+    libvirt-daemon-system > /dev/null
 
-cephadm add-repo --release reef
-cephadm install
+    python3 -m venv IGS_venv
+    source IGS_venv/bin/activate
 
-cephadm bootstrap --mon-ip 10.0.0.154
+    sudo systemctl start libvirtd
+    sudo systemctl enable libvirtd
 
-sudo apt-get install python3-rados
-sudo apt-get install python3-rbd
+    pip3 install \
+    grpcio-tools \
+    grpcio \
+    libvirt-python \
+    requests \
+    tqdm \
+    pyroute2 \
+    pyparted \
+    pyyaml
 
+    deactivate
+}
+
+generate_grpc_scripts()
+{
+    source IGS_venv/bin/activate
+
+    cd compute
+    sudo rm -rf generated
+    ./generate_grpc_scripts.sh
+    cd ../storage
+    sudo rm -rf generated
+    ./generate_grpc_scripts.sh
+    cd ..
+
+    deactivate
+}
+
+create_IGS_directories()
+{
+    sudo mkdir -p /IGS
+    sudo mkdir -p /IGS/compute
+    sudo mkdir -p /IGS/compute/vms
+    sudo mkdir -p /IGS/compute/isos
+    sudo mkdir -p /IGS/compute/images
+    sudo mkdir -p /IGS/storage
+}
+
+main()
+{
+    printf "\nInstalling python dependencies. Please be patient. This may take a while...\n"
+
+    install_python_dependencies
+
+    printf "\nFinished installing python dependencies\n"
+
+    generate_grpc_scripts
+
+    printf "\nFinished generating messaging scripts\n"
+
+    create_IGS_directories
+
+    printf "\nFinished installing IGS\n\n"
+}
+
+main
