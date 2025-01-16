@@ -16,12 +16,21 @@
 import os
 import requests
 import hashlib
+import sys
 from tqdm import tqdm
+import subprocess
+import shutil
 
 class DistroManager:
 
+    def __init__(self): ...
+    def download_ubuntu_iso(self, version): ...
+    def verify_ubuntu_image(self, version): ...
+    def generate_ubuntu_image(self, version): ...
+
     def __init__(self):
         self.iso_location = "/IGS/compute/isos"
+        self.image_location = "/IGS/compute/images"
         os.makedirs(self.iso_location, exist_ok=True)
 
     def download_ubuntu_iso(self, version="22.04.5"):
@@ -31,23 +40,99 @@ class DistroManager:
         iso_path = f"{self.iso_location}/ubuntu/{iso_fname}"
 
         if os.path.exists(f"{self.iso_location}/ubuntu/ubuntu-{version}-live-server-amd64.iso"):
-            print("Ubuntu iso already exists")
             return
 
         os.makedirs(self.iso_location + "/ubuntu/", exist_ok=True)
 
-        print(f"Downloading Ubuntu {version} iso")
+        print(f"Downloading Ubuntu {version} iso from {iso_url}")
         print(f"Please wait...\n")
 
-        response = requests.get(iso_url, stream=True)
+        #response = requests.get(iso_url, stream=True, verify=True)
+        #tsize = int(response.headers.get('content-length', 0))
+        #bsize = 1024 ** 2
 
-        tsize = int(response.headers.get('content-length', 0))
-        bsize = 1024 ** 2
+        #with open(iso_path, 'wb') as f:
+        #    with tqdm(total=tsize, unit='B', unit_scale=True) as pbar:
+        #        for data in response.iter_content(bsize):
+        #            f.write(data)
+        #            pbar.update(len(data))
 
-        with open(iso_path, 'wb') as f:
-            with tqdm(total=tsize, unit='B', unit_scale=True) as pbar:
-                for data in response.iter_content(bsize):
-                    f.write(data)
-                    pbar.update(len(data))
+        subprocess.run([
+            'curl', '-L', '-o', iso_path,
+            '--progress-bar',
+            iso_url
+        ], check=True)
 
-        print("Finished downloading Ubuntu iso")
+        print("\nFinished downloading Ubuntu iso")
+
+    def verify_ubuntu_image(self, version="22.04.5"):
+        self.download_ubuntu_iso(version=version)
+
+        if os.path.exists(f"{self.image_location}/ubuntu_{version}_base.qcow2"):
+            print("Found Ubuntu image\n")
+            return
+
+        self.generate_ubuntu_image(version=version)
+
+    def generate_ubuntu_image(self, version="22.04.5"):
+        image_path = f"/IGS/compute/images/ubuntu_{version}_base.qcow2"
+        try:
+            subprocess.run([
+                'qemu-img', 'create',
+                '-f', 'qcow2', image_path,
+                f'10G'
+            ], check=True)
+
+            print(f"Created base image disk: {image_path}")
+
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to create disk: {e}")
+            return False
+
+        os.makedirs("iso_mount", exist_ok=True)
+
+        mount_iso_cmd = [
+            "mount",
+            "-o", "loop",
+            f"{self.iso_location}/ubuntu/ubuntu-22.04.5-live-server-amd64.iso", f"iso_mount"
+        ]
+        subprocess.run(mount_iso_cmd)
+
+        run_ubuntu_base_generation_cmd = [
+            "qemu-system-x86_64",
+            "-enable-kvm",
+            "-m", "2048",
+            "-cpu", "host",
+            "-drive", f"file={image_path},format=qcow2",
+            "-drive", f"file=/IGS/compute/isos/ubuntu/ubuntu-22.04.5-live-server-amd64.iso,media=cdrom",
+            "-nic", "user",
+            "-kernel", "iso_mount/casper/vmlinuz",
+            "-initrd", "iso_mount/casper/initrd",
+            "-nographic",
+            "-append", "\"console=ttyS0 only-ubiquity\""
+        ]
+        process = subprocess.run(run_ubuntu_base_generation_cmd)
+
+        kill_qemu_cmd = [
+            "killall",
+            "-9", "qemu-system-x86_64"
+        ]
+        process = subprocess.run(kill_qemu_cmd)
+
+        compress_ubuntu_base_image_cmd = [
+            "qemu-img",
+            "convert",
+            "-c",
+            "-O", "qcow2",
+            f"{image_path}", f"{self.image_location}/compressed_ubuntu"
+        ]
+
+        print("Compressing the Ubuntu image\n")
+
+        subprocess.run(compress_ubuntu_base_image_cmd)
+
+        shutil.move(f"{self.image_location}/compressed_ubuntu", f"{image_path}")
+
+        print("Finished building the base image\n")
+
+        return 0

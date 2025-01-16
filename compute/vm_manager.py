@@ -123,6 +123,11 @@ class VMManager():
         return self._running_vms[vm_num].serial_conn
     
     def create_vm(self):
+
+        self._distro_manager.verify_ubuntu_image()
+
+        print("Creating the vm\n")
+
         vm_uuid = str(uuid.uuid4())
         vm_path = f"{vm_uuid}"
 
@@ -351,7 +356,7 @@ class VMManager():
             copy_image_cmd = [
                 "qemu-img", "create",
                 "-f", "qcow2",
-                "-b", "/IGS/compute/images/ubuntu22.04.qcow2",
+                "-b", "/IGS/compute/images/ubuntu_22.04.5_base.qcow2",
                 "-F", "qcow2",
                 f"{self._vm_location}/{vm_id}/{vm_id}.qcow2",
                 "10G"

@@ -1,0 +1,609 @@
+    PID TTY      STAT   TIME COMMAND
+      1 ?        Ss     0:02 /sbin/init splash
+      2 ?        S      0:00 [kthreadd]
+      3 ?        S      0:00 [pool_workqueue_release]
+      4 ?        I<     0:00 [kworker/R-rcu_gp]
+      5 ?        I<     0:00 [kworker/R-sync_wq]
+      6 ?        I<     0:00 [kworker/R-slub_flushwq]
+      7 ?        I<     0:00 [kworker/R-netns]
+      9 ?        I      0:00 [kworker/0:1-mm_percpu_wq]
+     10 ?        I<     0:00 [kworker/0:0H-events_highpri]
+     12 ?        I<     0:00 [kworker/R-mm_percpu_wq]
+     13 ?        I      0:00 [rcu_tasks_kthread]
+     14 ?        I      0:00 [rcu_tasks_rude_kthread]
+     15 ?        I      0:00 [rcu_tasks_trace_kthread]
+     16 ?        S      0:00 [ksoftirqd/0]
+     17 ?        I      0:00 [rcu_preempt]
+     18 ?        S      0:00 [rcu_exp_par_gp_kthread_worker/1]
+     19 ?        S      0:00 [rcu_exp_gp_kthread_worker]
+     20 ?        S      0:00 [migration/0]
+     21 ?        S      0:00 [idle_inject/0]
+     22 ?        S      0:00 [cpuhp/0]
+     23 ?        S      0:00 [cpuhp/1]
+     24 ?        S      0:00 [idle_inject/1]
+     25 ?        S      0:00 [migration/1]
+     26 ?        S      0:00 [ksoftirqd/1]
+     28 ?        I<     0:00 [kworker/1:0H-events_highpri]
+     29 ?        S      0:00 [cpuhp/2]
+     30 ?        S      0:00 [idle_inject/2]
+     31 ?        S      0:00 [migration/2]
+     32 ?        S      0:00 [ksoftirqd/2]
+     34 ?        I<     0:00 [kworker/2:0H-events_highpri]
+     35 ?        S      0:00 [cpuhp/3]
+     36 ?        S      0:00 [idle_inject/3]
+     37 ?        S      0:00 [migration/3]
+     38 ?        S      0:00 [ksoftirqd/3]
+     40 ?        I<     0:00 [kworker/3:0H-events_highpri]
+     41 ?        S      0:00 [cpuhp/4]
+     42 ?        S      0:00 [idle_inject/4]
+     43 ?        S      0:00 [migration/4]
+     44 ?        S      0:00 [ksoftirqd/4]
+     45 ?        I      0:00 [kworker/4:0-mm_percpu_wq]
+     46 ?        I<     0:00 [kworker/4:0H-events_highpri]
+     47 ?        S      0:00 [cpuhp/5]
+     48 ?        S      0:00 [idle_inject/5]
+     49 ?        S      0:00 [migration/5]
+     50 ?        S      0:00 [ksoftirqd/5]
+     52 ?        I<     0:00 [kworker/5:0H-events_highpri]
+     53 ?        S      0:00 [cpuhp/6]
+     54 ?        S      0:00 [idle_inject/6]
+     55 ?        S      0:00 [migration/6]
+     56 ?        S      0:00 [ksoftirqd/6]
+     58 ?        I<     0:00 [kworker/6:0H-events_highpri]
+     59 ?        S      0:00 [cpuhp/7]
+     60 ?        S      0:00 [idle_inject/7]
+     61 ?        S      0:00 [migration/7]
+     62 ?        S      0:00 [ksoftirqd/7]
+     64 ?        I<     0:00 [kworker/7:0H-events_highpri]
+     65 ?        S      0:00 [cpuhp/8]
+     66 ?        S      0:00 [idle_inject/8]
+     67 ?        S      0:00 [migration/8]
+     68 ?        S      0:00 [ksoftirqd/8]
+     69 ?        I      0:00 [kworker/8:0-mm_percpu_wq]
+     70 ?        I<     0:00 [kworker/8:0H-events_highpri]
+     71 ?        S      0:00 [cpuhp/9]
+     72 ?        S      0:00 [idle_inject/9]
+     73 ?        S      0:00 [migration/9]
+     74 ?        S      0:00 [ksoftirqd/9]
+     76 ?        I<     0:00 [kworker/9:0H-events_highpri]
+     77 ?        S      0:00 [cpuhp/10]
+     78 ?        S      0:00 [idle_inject/10]
+     79 ?        S      0:00 [migration/10]
+     80 ?        S      0:00 [ksoftirqd/10]
+     82 ?        I<     0:00 [kworker/10:0H-events_highpri]
+     83 ?        S      0:00 [cpuhp/11]
+     84 ?        S      0:00 [idle_inject/11]
+     85 ?        S      0:00 [migration/11]
+     86 ?        S      0:00 [ksoftirqd/11]
+     87 ?        I      0:00 [kworker/11:0-cgroup_destroy]
+     88 ?        I<     0:00 [kworker/11:0H-events_highpri]
+     89 ?        S      0:00 [cpuhp/12]
+     90 ?        S      0:00 [idle_inject/12]
+     91 ?        S      0:00 [migration/12]
+     92 ?        S      0:00 [ksoftirqd/12]
+     94 ?        I<     0:00 [kworker/12:0H-events_highpri]
+     95 ?        S      0:00 [cpuhp/13]
+     96 ?        S      0:00 [idle_inject/13]
+     97 ?        S      0:00 [migration/13]
+     98 ?        S      0:00 [ksoftirqd/13]
+    100 ?        I<     0:00 [kworker/13:0H-events_highpri]
+    101 ?        S      0:00 [cpuhp/14]
+    102 ?        S      0:00 [idle_inject/14]
+    103 ?        S      0:00 [migration/14]
+    104 ?        S      0:00 [ksoftirqd/14]
+    105 ?        I      0:00 [kworker/14:0-mm_percpu_wq]
+    106 ?        I<     0:00 [kworker/14:0H-events_highpri]
+    107 ?        S      0:00 [cpuhp/15]
+    108 ?        S      0:00 [idle_inject/15]
+    109 ?        S      0:00 [migration/15]
+    110 ?        S      0:00 [ksoftirqd/15]
+    111 ?        I      0:00 [kworker/15:0-mm_percpu_wq]
+    112 ?        I<     0:00 [kworker/15:0H-events_highpri]
+    113 ?        S      0:00 [cpuhp/16]
+    114 ?        S      0:00 [idle_inject/16]
+    115 ?        S      0:00 [migration/16]
+    116 ?        S      0:00 [ksoftirqd/16]
+    118 ?        I<     0:00 [kworker/16:0H-events_highpri]
+    119 ?        S      0:00 [rcu_exp_par_gp_kthread_worker/2]
+    120 ?        S      0:00 [cpuhp/17]
+    121 ?        S      0:00 [idle_inject/17]
+    122 ?        S      0:00 [migration/17]
+    123 ?        S      0:00 [ksoftirqd/17]
+    125 ?        I<     0:00 [kworker/17:0H-events_highpri]
+    126 ?        S      0:00 [cpuhp/18]
+    127 ?        S      0:00 [idle_inject/18]
+    128 ?        S      0:00 [migration/18]
+    129 ?        S      0:00 [ksoftirqd/18]
+    131 ?        I<     0:00 [kworker/18:0H-events_highpri]
+    132 ?        S      0:00 [cpuhp/19]
+    133 ?        S      0:00 [idle_inject/19]
+    134 ?        S      0:00 [migration/19]
+    135 ?        S      0:00 [ksoftirqd/19]
+    137 ?        I<     0:00 [kworker/19:0H-events_highpri]
+    138 ?        S      0:00 [cpuhp/20]
+    139 ?        S      0:00 [idle_inject/20]
+    140 ?        S      0:00 [migration/20]
+    141 ?        S      0:00 [ksoftirqd/20]
+    142 ?        I      0:00 [kworker/20:0-mm_percpu_wq]
+    143 ?        I<     0:00 [kworker/20:0H-kblockd]
+    144 ?        S      0:00 [cpuhp/21]
+    145 ?        S      0:00 [idle_inject/21]
+    146 ?        S      0:00 [migration/21]
+    147 ?        S      0:00 [ksoftirqd/21]
+    148 ?        I      0:00 [kworker/21:0-mm_percpu_wq]
+    149 ?        I<     0:00 [kworker/21:0H-events_highpri]
+    150 ?        S      0:00 [cpuhp/22]
+    151 ?        S      0:00 [idle_inject/22]
+    152 ?        S      0:00 [migration/22]
+    153 ?        S      0:00 [ksoftirqd/22]
+    154 ?        I      0:00 [kworker/22:0-cgroup_destroy]
+    155 ?        I<     0:00 [kworker/22:0H-events_highpri]
+    156 ?        S      0:00 [cpuhp/23]
+    157 ?        S      0:00 [idle_inject/23]
+    158 ?        S      0:00 [migration/23]
+    159 ?        S      0:00 [ksoftirqd/23]
+    160 ?        I      0:00 [kworker/23:0-mm_percpu_wq]
+    161 ?        I<     0:00 [kworker/23:0H-events_highpri]
+    162 ?        S      0:00 [cpuhp/24]
+    163 ?        S      0:00 [idle_inject/24]
+    164 ?        S      0:00 [migration/24]
+    165 ?        S      0:00 [ksoftirqd/24]
+    166 ?        I      0:00 [kworker/24:0-events]
+    167 ?        I<     0:00 [kworker/24:0H-events_highpri]
+    168 ?        S      0:00 [cpuhp/25]
+    169 ?        S      0:00 [idle_inject/25]
+    170 ?        S      0:00 [migration/25]
+    171 ?        S      0:00 [ksoftirqd/25]
+    173 ?        I<     0:00 [kworker/25:0H-events_highpri]
+    174 ?        S      0:00 [cpuhp/26]
+    175 ?        S      0:00 [idle_inject/26]
+    176 ?        S      0:00 [migration/26]
+    177 ?        S      0:00 [ksoftirqd/26]
+    179 ?        I<     0:00 [kworker/26:0H-events_highpri]
+    180 ?        S      0:00 [cpuhp/27]
+    181 ?        S      0:00 [idle_inject/27]
+    182 ?        S      0:00 [migration/27]
+    183 ?        S      0:00 [ksoftirqd/27]
+    184 ?        I      0:00 [kworker/27:0-mm_percpu_wq]
+    185 ?        I<     0:00 [kworker/27:0H-events_highpri]
+    186 ?        S      0:00 [cpuhp/28]
+    187 ?        S      0:00 [idle_inject/28]
+    188 ?        S      0:00 [migration/28]
+    189 ?        S      0:00 [ksoftirqd/28]
+    191 ?        I<     0:00 [kworker/28:0H-events_highpri]
+    192 ?        S      0:00 [cpuhp/29]
+    193 ?        S      0:00 [idle_inject/29]
+    194 ?        S      0:00 [migration/29]
+    195 ?        S      0:00 [ksoftirqd/29]
+    197 ?        I<     0:00 [kworker/29:0H-events_highpri]
+    198 ?        S      0:00 [cpuhp/30]
+    199 ?        S      0:00 [idle_inject/30]
+    200 ?        S      0:00 [migration/30]
+    201 ?        S      0:00 [ksoftirqd/30]
+    202 ?        I      0:00 [kworker/30:0-events]
+    203 ?        I<     0:00 [kworker/30:0H-events_highpri]
+    204 ?        S      0:00 [cpuhp/31]
+    205 ?        S      0:00 [idle_inject/31]
+    206 ?        S      0:00 [migration/31]
+    207 ?        S      0:00 [ksoftirqd/31]
+    209 ?        I<     0:00 [kworker/31:0H-events_highpri]
+    212 ?        S      0:00 [kdevtmpfs]
+    213 ?        I<     0:00 [kworker/R-inet_frag_wq]
+    215 ?        S      0:00 [kauditd]
+    216 ?        S      0:00 [khungtaskd]
+    217 ?        S      0:00 [oom_reaper]
+    218 ?        I      0:00 [kworker/u129:2-flush-259:6]
+    219 ?        I<     0:00 [kworker/R-writeback]
+    220 ?        S      0:00 [kcompactd0]
+    221 ?        SN     0:05 [ksmd]
+    222 ?        SN     0:00 [khugepaged]
+    223 ?        I<     0:00 [kworker/R-kintegrityd]
+    224 ?        I<     0:00 [kworker/R-kblockd]
+    225 ?        I<     0:00 [kworker/R-blkcg_punt_bio]
+    226 ?        S      0:00 [irq/9-acpi]
+    227 ?        I      0:00 [kworker/2:1-mm_percpu_wq]
+    228 ?        I      0:00 [kworker/16:1-mm_percpu_wq]
+    229 ?        I<     0:00 [kworker/R-tpm_dev_wq]
+    230 ?        I<     0:00 [kworker/R-ata_sff]
+    231 ?        I<     0:00 [kworker/R-md]
+    232 ?        I<     0:00 [kworker/R-md_bitmap]
+    233 ?        I<     0:00 [kworker/R-edac-poller]
+    235 ?        I<     0:00 [kworker/R-devfreq_wq]
+    236 ?        S      0:00 [watchdogd]
+    238 ?        I<     0:00 [kworker/16:1H-kblockd]
+    239 ?        S      0:00 [irq/26-AMD-Vi]
+    240 ?        I      0:00 [kworker/24:1-mm_percpu_wq]
+    241 ?        S      0:00 [kswapd0]
+    242 ?        S      0:00 [ecryptfs-kthread]
+    243 ?        I<     0:00 [kworker/R-kthrotld]
+    245 ?        I<     0:00 [kworker/R-acpi_thermal_pm]
+    247 ?        I      0:00 [kworker/26:1-events]
+    248 ?        I      0:00 [kworker/1:1-cgroup_destroy]
+    249 ?        I<     0:00 [kworker/R-mld]
+    250 ?        I<     0:00 [kworker/3:1H-kblockd]
+    251 ?        I<     0:00 [kworker/R-ipv6_addrconf]
+    256 ?        I      0:00 [kworker/25:5-cgroup_destroy]
+    259 ?        I      0:00 [kworker/3:1-events]
+    261 ?        I      0:00 [kworker/8:1-mm_percpu_wq]
+    262 ?        I      0:00 [kworker/9:1-mm_percpu_wq]
+    263 ?        I      0:00 [kworker/10:1-events]
+    264 ?        I      0:00 [kworker/15:1-mm_percpu_wq]
+    265 ?        I      0:00 [kworker/12:1-events]
+    266 ?        I      0:00 [kworker/13:1-mm_percpu_wq]
+    268 ?        I      0:00 [kworker/14:1-mm_percpu_wq]
+    269 ?        I      0:00 [kworker/6:1-mm_percpu_wq]
+    270 ?        I      0:00 [kworker/7:1-events]
+    271 ?        I      0:00 [kworker/5:1-events]
+    272 ?        I      0:00 [kworker/4:1-events_freezable]
+    273 ?        I      0:00 [kworker/20:1-mm_percpu_wq]
+    274 ?        I      0:00 [kworker/21:1-mm_percpu_wq]
+    275 ?        I      0:00 [kworker/18:1-events]
+    276 ?        I      0:00 [kworker/19:1-events]
+    277 ?        I      0:00 [kworker/22:1-events]
+    278 ?        I      0:00 [kworker/27:1-events]
+    279 ?        I      0:00 [kworker/28:1-mm_percpu_wq]
+    280 ?        I      0:00 [kworker/29:1-mm_percpu_wq]
+    281 ?        I      0:00 [kworker/30:1-events]
+    282 ?        I      0:00 [kworker/31:1-mm_percpu_wq]
+    289 ?        I<     0:00 [kworker/R-kstrp]
+    291 ?        I<     0:00 [kworker/u131:0-hci0]
+    292 ?        I<     0:00 [kworker/u132:0]
+    293 ?        I<     0:00 [kworker/u133:0-ttm]
+    309 ?        I<     0:00 [kworker/R-charger_manager]
+    310 ?        I<     0:00 [kworker/0:1H-kblockd]
+    311 ?        S      0:00 [irq/27-ACPI:Event]
+    312 ?        I<     0:00 [kworker/1:1H-kblockd]
+    313 ?        S      0:00 [irq/28-ACPI:Event]
+    314 ?        S      0:00 [irq/29-ACPI:Event]
+   1988 ?        I<     0:00 [kworker/25:1H-kblockd]
+   3225 ?        I<     0:00 [kworker/8:1H-kblockd]
+   3226 ?        I<     0:00 [kworker/9:1H-kblockd]
+   3229 ?        I<     0:00 [kworker/10:1H-kblockd]
+   3232 ?        I<     0:00 [kworker/20:1H]
+   3235 ?        I<     0:00 [kworker/11:1H-kblockd]
+   3238 ?        I<     0:00 [kworker/12:1H-kblockd]
+   3241 ?        I<     0:00 [kworker/5:1H-kblockd]
+   3293 ?        I<     0:00 [kworker/13:1H-kblockd]
+   3298 ?        I<     0:00 [kworker/14:1H-kblockd]
+   3308 ?        I<     0:00 [kworker/15:1H-kblockd]
+   3311 ?        I<     0:00 [kworker/24:1H-kblockd]
+   3318 ?        I<     0:00 [kworker/26:1H-kblockd]
+   3321 ?        I<     0:00 [kworker/27:1H-kblockd]
+   3324 ?        I<     0:00 [kworker/28:1H-kblockd]
+   3329 ?        I<     0:00 [kworker/29:1H-kblockd]
+   3334 ?        I<     0:00 [kworker/30:1H-kblockd]
+   3339 ?        I<     0:00 [kworker/31:1H-kblockd]
+   3415 ?        I<     0:00 [kworker/2:1H-kblockd]
+   3431 ?        I<     0:00 [kworker/4:1H-kblockd]
+   3436 ?        I<     0:00 [kworker/6:1H-kblockd]
+   3438 ?        I<     0:00 [kworker/23:1H-kblockd]
+   3439 ?        I<     0:00 [kworker/18:1H-kblockd]
+   3444 ?        I<     0:00 [kworker/19:1H-kblockd]
+   3445 ?        I      0:00 [kworker/28:2-events]
+   3446 ?        I<     0:00 [kworker/17:1H-kblockd]
+   3447 ?        I<     0:00 [kworker/7:1H-kblockd]
+   3469 ?        I<     0:00 [kworker/R-tls-strp]
+   3477 ?        I<     0:00 [kworker/21:1H-kblockd]
+   3491 ?        I<     0:00 [kworker/R-nvme-wq]
+   3492 ?        I<     0:00 [kworker/R-nvme-reset-wq]
+   3493 ?        I<     0:00 [kworker/R-nvme-delete-wq]
+   3494 ?        I<     0:00 [kworker/R-nvme-auth-wq]
+   3508 ?        S      0:00 [scsi_eh_0]
+   3509 ?        I<     0:00 [kworker/R-scsi_tmf_0]
+   3510 ?        S      0:00 [scsi_eh_1]
+   3511 ?        I<     0:00 [kworker/R-scsi_tmf_1]
+   3512 ?        S      0:00 [scsi_eh_2]
+   3513 ?        I<     0:00 [kworker/R-scsi_tmf_2]
+   3514 ?        S      0:00 [scsi_eh_3]
+   3515 ?        I<     0:00 [kworker/R-scsi_tmf_3]
+   3516 ?        S      0:00 [scsi_eh_4]
+   3517 ?        I<     0:00 [kworker/R-scsi_tmf_4]
+   3518 ?        S      0:00 [scsi_eh_5]
+   3519 ?        I<     0:00 [kworker/R-scsi_tmf_5]
+   3523 ?        S      0:00 [scsi_eh_6]
+   3524 ?        I<     0:00 [kworker/R-scsi_tmf_6]
+   3525 ?        S      0:00 [scsi_eh_7]
+   3526 ?        I<     0:00 [kworker/R-scsi_tmf_7]
+   3527 ?        S      0:00 [scsi_eh_8]
+   3528 ?        I<     0:00 [kworker/R-scsi_tmf_8]
+   3529 ?        S      0:00 [scsi_eh_9]
+   3530 ?        I<     0:00 [kworker/R-scsi_tmf_9]
+   3531 ?        S      0:00 [scsi_eh_10]
+   3532 ?        I<     0:00 [kworker/R-scsi_tmf_10]
+   3533 ?        S      0:00 [scsi_eh_11]
+   3534 ?        I<     0:00 [kworker/R-scsi_tmf_11]
+   3539 ?        I      0:00 [kworker/u129:12-writeback]
+   3545 ?        I      0:00 [kworker/11:2-mm_percpu_wq]
+   3547 ?        I      0:00 [kworker/17:2-events]
+   3548 ?        I      0:00 [kworker/17:3-mm_percpu_wq]
+   3551 ?        I      0:00 [kworker/16:2-events]
+   3552 ?        I<     0:00 [kworker/22:1H-kblockd]
+   3555 ?        I<     0:00 [kworker/R-mlx5_cmd_0000:01:00.0]
+   3556 ?        I<     0:00 [kworker/R-mlx5_health0000:01:00.0]
+   3557 ?        I<     0:00 [kworker/R-mlx5_page_allocator]
+   3558 ?        I      0:00 [kworker/u128:2-mt76]
+   3559 ?        I<     0:00 [kworker/R-mlx5_events]
+   3560 ?        I<     0:00 [kworker/R-mlx5_fw_reset_events]
+   3561 ?        I<     0:00 [kworker/R-mlx5_esw_wq]
+   3562 ?        I<     0:00 [kworker/R-mlx5_vhca_event0]
+   3563 ?        I<     0:00 [kworker/R-mlx5_vhca_event1]
+   3564 ?        I<     0:00 [kworker/R-mlx5_vhca_event2]
+   3565 ?        I<     0:00 [kworker/R-mlx5_vhca_event3]
+   3566 ?        I<     0:00 [kworker/R-mlx5_vhca_event4]
+   3567 ?        I<     0:00 [kworker/R-mlx5_vhca_event5]
+   3568 ?        I<     0:00 [kworker/R-mlx5_vhca_event6]
+   3569 ?        I<     0:00 [kworker/R-mlx5_vhca_event7]
+   3570 ?        I<     0:00 [kworker/R-mlx5_fc]
+   3571 ?        I<     0:00 [kworker/R-mlx5_fw_tracer]
+   3572 ?        I<     0:00 [kworker/R-mlx5_hv_vhca]
+   3574 ?        I<     0:00 [kworker/R-mlx5_lag]
+   3575 ?        I<     0:00 [kworker/R-mlx5_lag_mp]
+   3576 ?        I<     0:00 [kworker/R-mlx5e]
+   3577 ?        I<     0:00 [kworker/R-mlx5e_arfs]
+   3578 ?        I<     0:00 [kworker/R-mlx5_cmd_0000:01:00.1]
+   3579 ?        I<     0:00 [kworker/R-mlx5_health0000:01:00.1]
+   3580 ?        I<     0:00 [kworker/R-mlx5_page_allocator]
+   3581 ?        I<     0:00 [kworker/R-mlx5_events]
+   3582 ?        I<     0:00 [kworker/R-mlx5_fw_reset_events]
+   3583 ?        I<     0:00 [kworker/R-mlx5_esw_wq]
+   3584 ?        I<     0:00 [kworker/R-mlx5_vhca_event0]
+   3585 ?        I<     0:00 [kworker/R-mlx5_vhca_event1]
+   3586 ?        I<     0:00 [kworker/R-mlx5_vhca_event2]
+   3587 ?        I<     0:00 [kworker/R-mlx5_vhca_event3]
+   3588 ?        I<     0:00 [kworker/R-mlx5_vhca_event4]
+   3589 ?        I<     0:00 [kworker/R-mlx5_vhca_event5]
+   3590 ?        I<     0:00 [kworker/R-mlx5_vhca_event6]
+   3591 ?        I<     0:00 [kworker/R-mlx5_vhca_event7]
+   3592 ?        I<     0:00 [kworker/R-mlx5_fc]
+   3593 ?        I<     0:00 [kworker/R-mlx5_fw_tracer]
+   3594 ?        I<     0:00 [kworker/R-mlx5_hv_vhca]
+   3595 ?        I<     0:00 [kworker/R-mlx5e]
+   3596 ?        I<     0:00 [kworker/R-mlx5e_arfs]
+   3609 ?        I<     0:00 [kworker/R-ib-comp-wq]
+   3610 ?        I<     0:00 [kworker/R-ib-comp-unb-wq]
+   3611 ?        I<     0:00 [kworker/R-ib_mcast]
+   3612 ?        I<     0:00 [kworker/R-ib_nl_sa_wq]
+   3614 ?        I<     0:00 [kworker/R-ib_mad1]
+   3615 ?        I<     0:00 [kworker/R-mkey_cache]
+   3616 ?        I<     0:00 [kworker/R-ib_mad1]
+   3617 ?        I<     0:00 [kworker/R-mkey_cache]
+   3639 ?        S      0:00 [jbd2/nvme0n1p2-8]
+   3640 ?        I<     0:00 [kworker/R-ext4-rsv-conversion]
+   3644 ?        I      0:00 [kworker/u130:2-flush-259:6]
+   3685 ?        S<s    0:02 /lib/systemd/systemd-journald
+   3717 ?        I      0:00 [kworker/1:2-mm_percpu_wq]
+   3739 ?        Ss     0:00 /lib/systemd/systemd-udevd
+   3777 ?        I      0:00 [kworker/5:2-events]
+   3780 ?        I      0:00 [kworker/u130:5-flush-259:6]
+   3782 ?        I      0:00 [kworker/u130:7-flush-259:6]
+   3837 ?        I      0:00 [kworker/7:2-rcu_gp]
+   3876 ?        I      0:00 [kworker/26:2-mm_percpu_wq]
+   3901 ?        I<     0:00 [kworker/R-cryptd]
+   3944 ?        I<     0:00 [kworker/R-cfg80211]
+   4002 ?        Ss     0:01 /lib/systemd/systemd-oomd
+   4005 ?        Ss     0:00 /lib/systemd/systemd-resolved
+   4006 ?        I<     0:00 [kworker/u131:1-hci0]
+   4008 ?        Ssl    0:00 /lib/systemd/systemd-timesyncd
+   4022 ?        I      0:00 [kworker/19:3-events]
+   4174 ?        I      0:00 [kworker/29:2-cgroup_destroy]
+   4175 ?        I<     0:00 [kworker/R-nvkm-disp]
+   4179 ?        I<     0:00 [kworker/R-ttm]
+   4180 ?        S      0:00 [card0-crtc0]
+   4181 ?        S      0:00 [card0-crtc1]
+   4182 ?        S      0:00 [card0-crtc2]
+   4183 ?        S      0:00 [card0-crtc3]
+   4184 ?        I      0:00 [kworker/12:2-cgroup_destroy]
+   4187 ?        Ssl    0:00 /usr/libexec/accounts-daemon
+   4188 ?        Ss     0:00 /usr/sbin/acpid
+   4190 ?        Ss     0:00 avahi-daemon: running [dev-server.local]
+   4191 ?        Ss     0:00 /usr/lib/bluetooth/bluetoothd
+   4192 ?        Ss     0:00 /usr/bin/python3 /usr/bin/ceph-crash
+   4194 ?        Ss     0:00 @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+   4197 ?        Ssl    0:00 /usr/sbin/NetworkManager --no-daemon
+   4203 ?        Ssl    0:00 /usr/sbin/irqbalance --foreground
+   4205 ?        Ss     0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+   4208 ?        Ssl    0:00 /usr/libexec/polkitd --no-debug
+   4210 ?        Ssl    0:00 /usr/libexec/power-profiles-daemon
+   4212 ?        Ssl    0:00 /usr/sbin/rsyslogd -n -iNONE
+   4216 ?        Ss     0:00 /usr/sbin/smartd -n
+   4221 ?        Ssl    0:02 /usr/lib/snapd/snapd
+   4224 ?        Ssl    0:00 /usr/libexec/switcheroo-control
+   4228 ?        Ss     0:00 /lib/systemd/systemd-logind
+   4229 ?        Ss     0:00 /lib/systemd/systemd-machined
+   4231 ?        Ssl    0:00 /usr/libexec/udisks2/udisksd
+   4232 ?        Ss     0:00 /sbin/wpa_supplicant -u -s -O /run/wpa_supplicant
+   4239 ?        S      0:00 avahi-daemon: chroot helper
+   4261 ?        Ssl    0:00 /usr/sbin/ModemManager
+   4323 ?        I<     0:00 [kworker/R-amdgpu-reset-dev]
+   4352 ?        Ss     0:00 /usr/sbin/cupsd -l
+   4353 ?        I<     0:00 [kworker/R-ttm]
+   4361 ?        Ss     0:00 ovsdb-server -vconsole:off -vfile:info --log-file=/var/log/ovn/ovsdb-server-nb.log --remote=punix:/var/run/ovn/ovnnb_db.sock --pidfile=/var/run/ovn/ovnnb_db.pid --unixctl=/var/run/ovn/ovnnb_db.ctl --remote=db:OVN_Northbound,NB_Global,connections --private-key=db:OVN_Northbound,SSL,private_key --certificate=db:OVN_Northbound,SSL,certificate --ca-cert=db:OVN_Northbound,SSL,ca_cert --ssl-protocols=db:OVN_Northbound,SSL,ssl_protocols --ssl-ciphers=db:OVN_Northbound,SSL,ssl_ciphers /var/lib/ovn/ovnnb_db.db
+   4362 ?        Ss     0:00 ovsdb-server -vconsole:off -vfile:info --log-file=/var/log/ovn/ovsdb-server-sb.log --remote=punix:/var/run/ovn/ovnsb_db.sock --pidfile=/var/run/ovn/ovnsb_db.pid --unixctl=/var/run/ovn/ovnsb_db.ctl --remote=db:OVN_Southbound,SB_Global,connections --private-key=db:OVN_Southbound,SSL,private_key --certificate=db:OVN_Southbound,SSL,certificate --ca-cert=db:OVN_Southbound,SSL,ca_cert --ssl-protocols=db:OVN_Southbound,SSL,ssl_protocols --ssl-ciphers=db:OVN_Southbound,SSL,ssl_ciphers /var/lib/ovn/ovnsb_db.db
+   4414 ?        Ssl    0:01 /usr/bin/containerd
+   4430 ?        Ss     0:00 sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups
+   4454 ?        S      0:00 /usr/lib/cups/notifier/dbus dbus://
+   4455 ?        Ssl    0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+   4476 ?        S<sl   0:00 ovn-northd -vconsole:emer -vsyslog:err -vfile:info --ovnnb-db=unix:/var/run/ovn/ovnnb_db.sock --ovnsb-db=unix:/var/run/ovn/ovnsb_db.sock --no-chdir --log-file=/var/log/ovn/ovn-northd.log --pidfile=/var/run/ovn/ovn-northd.pid --detach
+   4508 ?        I<     0:00 [kworker/R-amdgpu_dm_hpd_rx_offload_wq]
+   4509 ?        I<     0:00 [kworker/R-amdgpu_dm_hpd_rx_offload_wq]
+   4510 ?        I<     0:00 [kworker/R-amdgpu_dm_hpd_rx_offload_wq]
+   4511 ?        I<     0:00 [kworker/R-dm_vblank_control_workqueue]
+   4513 ?        S      0:00 [card1-crtc0]
+   4514 ?        S      0:00 [card1-crtc1]
+   4515 ?        S      0:00 [card1-crtc2]
+   4516 ?        S      0:00 [card1-crtc3]
+   4581 ?        S      0:00 [napi/phy0-8210]
+   4583 ?        S      0:00 [napi/phy0-8211]
+   4584 ?        S      0:00 [napi/phy0-8212]
+   4733 ?        I      0:00 [kworker/18:2-events]
+   4745 ?        S      0:00 [mt76-tx phy0]
+   4816 ?        I      0:00 [kworker/10:2-cgroup_destroy]
+   4840 ?        I      0:00 [kworker/23:2-events]
+   4842 ?        Ssl    0:00 /usr/sbin/cups-browsed
+   4843 ?        Ssl    0:02 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+   4852 ?        Ss     0:00 /usr/sbin/haproxy -Ws -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid -S /run/haproxy-master.sock
+   4863 ?        Sl     0:00 /usr/sbin/haproxy -Ws -f /etc/haproxy/haproxy.cfg -p /run/haproxy.pid -S /run/haproxy-master.sock
+   4895 ?        I      0:00 [kworker/3:2-cgroup_destroy]
+   5211 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/alertmanager.dev-server/unit.run
+   5212 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/ceph-exporter.dev-server/unit.run
+   5213 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/crash.dev-server/unit.run
+   5215 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/grafana.dev-server/unit.run
+   5217 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/mgr.dev-server.jxbuda/unit.run
+   5220 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/mon.dev-server/unit.run
+   5223 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/node-exporter.dev-server/unit.run
+   5226 ?        Ss     0:00 /bin/bash /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/prometheus.dev-server/unit.run
+   5418 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --entrypoint /usr/bin/ceph-mgr --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-mgr-dev-server-jxbuda --pids-limit=0 -e CONTAINER_IMAGE=quay.io/ceph/ceph:v18 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -e TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=134217728 -v /var/run/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/run/ceph:z -v /var/log/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/log/ceph:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/crash:/var/lib/ceph/crash:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/mgr.dev-server.jxbuda:/var/lib/ceph/mgr/ceph-dev-server.jxbuda:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/mgr.dev-server.jxbuda/config:/etc/ceph/ceph.conf:z quay.io/ceph/ceph:v18 -n mgr.dev-server.jxbuda -f --setuser ceph --setgroup ceph --default-log-to-file=false --default-log-to-stderr=true --default-log-stderr-prefix=debug 
+   5419 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --entrypoint /usr/bin/ceph-crash --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-crash-dev-server --pids-limit=0 -e CONTAINER_IMAGE=quay.io/ceph/ceph@sha256:6ac7f923aa1d23b43248ce0ddec7e1388855ee3d00813b52c3172b0b23b37906 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -e TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=134217728 -v /var/run/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/run/ceph:z -v /var/log/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/log/ceph:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/crash:/var/lib/ceph/crash:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/crash.dev-server/config:/etc/ceph/ceph.conf:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/crash.dev-server/keyring:/etc/ceph/ceph.client.crash.dev-server.keyring quay.io/ceph/ceph@sha256:6ac7f923aa1d23b43248ce0ddec7e1388855ee3d00813b52c3172b0b23b37906 -n client.crash.dev-server
+   5420 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --entrypoint /usr/bin/ceph-mon --privileged --group-add=disk --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-mon-dev-server --pids-limit=0 -e CONTAINER_IMAGE=quay.io/ceph/ceph:v18 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -e TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=134217728 -v /var/run/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/run/ceph:z -v /var/log/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/log/ceph:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/crash:/var/lib/ceph/crash:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/mon.dev-server:/var/lib/ceph/mon/ceph-dev-server:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/mon.dev-server/config:/etc/ceph/ceph.conf:z -v /dev:/dev -v /run/udev:/run/udev quay.io/ceph/ceph:v18 -n mon.dev-server -f --setuser ceph --setgroup ceph --default-log-to-file=false --default-log-to-stderr=true --default-log-stderr-prefix=debug  --default-mon-cluster-log-to-file=false --default-mon-cluster-log-to-stderr=true
+   5421 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-prometheus-dev-server --user 65534 -e CONTAINER_IMAGE=quay.io/prometheus/prometheus:v2.43.0 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/prometheus.dev-server/etc/prometheus:/etc/prometheus:Z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/prometheus.dev-server/data:/prometheus:Z quay.io/prometheus/prometheus:v2.43.0 --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=15d --storage.tsdb.retention.size=0 --web.external-url=http://127.0.1.1:9095 --web.listen-address=:9095
+   5422 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --entrypoint /usr/bin/ceph-exporter --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-ceph-exporter-dev-server --pids-limit=0 -e CONTAINER_IMAGE=quay.io/ceph/ceph@sha256:6ac7f923aa1d23b43248ce0ddec7e1388855ee3d00813b52c3172b0b23b37906 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -e TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=134217728 -v /var/run/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/run/ceph:z -v /var/log/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36:/var/log/ceph:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/crash:/var/lib/ceph/crash:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/ceph-exporter.dev-server:/var/lib/ceph/ceph-exporter/ceph-dev-server:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/ceph-exporter.dev-server/config:/etc/ceph/ceph.conf:z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/ceph-exporter.dev-server/keyring:/etc/ceph/ceph.client.ceph-exporter.dev-server.keyring quay.io/ceph/ceph@sha256:6ac7f923aa1d23b43248ce0ddec7e1388855ee3d00813b52c3172b0b23b37906 -n client.ceph-exporter.dev-server -f --sock-dir=/var/run/ceph/ --addrs=0.0.0.0 --port=9926 --prio-limit=5 --stats-period=5
+   5423 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-grafana-dev-server --user 998 -e CONTAINER_IMAGE=quay.io/ceph/ceph-grafana:9.4.7 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/grafana.dev-server/etc/grafana/grafana.ini:/etc/grafana/grafana.ini:Z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/grafana.dev-server/etc/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:Z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/grafana.dev-server/etc/grafana/certs:/etc/grafana/certs:Z -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/grafana.dev-server/data/grafana.db:/var/lib/grafana/grafana.db:Z quay.io/ceph/ceph-grafana:9.4.7
+   5424 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-alertmanager-dev-server --user 65534 -e CONTAINER_IMAGE=quay.io/prometheus/alertmanager:v0.25.0 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/alertmanager.dev-server/etc/alertmanager:/etc/alertmanager:Z quay.io/prometheus/alertmanager:v0.25.0 --cluster.listen-address=:9094 --web.listen-address=:9093 --config.file=/etc/alertmanager/alertmanager.yml
+   5425 ?        Sl     0:00 /usr/bin/docker run --rm --ipc=host --stop-signal=SIGTERM --ulimit nofile=1048576 --net=host --init --name ceph-c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36-node-exporter-dev-server --user 65534 --security-opt label=disable -e CONTAINER_IMAGE=quay.io/prometheus/node-exporter:v1.5.0 -e NODE_NAME=dev-server -e CEPH_USE_RANDOM_NONCE=1 -v /var/lib/ceph/c4d7eeb6-ca39-11ef-b0da-9d84e8d2bd36/node-exporter.dev-server/etc/node-exporter:/etc/node-exporter:Z -v /proc:/host/proc:ro -v /sys:/host/sys:ro -v /:/rootfs:ro quay.io/prometheus/node-exporter:v1.5.0 --no-collector.timex --web.listen-address=:9100 --path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/rootfs
+   5521 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 6f28351b138bc62123a93ebaa0708081420a54cf706bc61641f4d359abdedafc -address /run/containerd/containerd.sock
+   5549 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 191ded77176d4c4e081029e4e9d00ae896471f1ab9f6e0f9622f18b4ba6584ce -address /run/containerd/containerd.sock
+   5577 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id c73b5765be7e74bd2fcb2317c967d578825d3d2075f9765089c190078ab2a505 -address /run/containerd/containerd.sock
+   5588 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id d13eb3366d2787c50fae009f1cb718083beb68e11314c36ce2591ea089780625 -address /run/containerd/containerd.sock
+   5612 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 7bf55d6fc336b27de6d80721b31af8c2db2ae6ee228224264f9f8660ce286031 -address /run/containerd/containerd.sock
+   5645 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id e0738c45ad09bea28ddceeec7583ad5c6d6a646d5c53d226e4104af709b2727f -address /run/containerd/containerd.sock
+   5664 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id 77d3fd55ecb2adbbb63b34a5ddfce7f29d2f63853fddd8b25574049aa61e03c1 -address /run/containerd/containerd.sock
+   5681 ?        Ss     0:00 /sbin/docker-init -- /bin/sh -c grafana-server --config=/etc/grafana/grafana.ini /bin/bash
+   5686 ?        Sl     0:00 /usr/bin/containerd-shim-runc-v2 -namespace moby -id b5b9cead6c4ba29cac903661322e01c3c53fe001f6f11f8eee1b38c33cff4670 -address /run/containerd/containerd.sock
+   5687 ?        Ss     0:00 /sbin/docker-init -- /bin/alertmanager --cluster.listen-address=:9094 --web.listen-address=:9093 --config.file=/etc/alertmanager/alertmanager.yml
+   5716 ?        Ss     0:00 /sbin/docker-init -- /usr/bin/ceph-mgr -n mgr.dev-server.jxbuda -f --setuser ceph --setgroup ceph --default-log-to-file=false --default-log-to-stderr=true --default-log-stderr-prefix=debug 
+   5721 ?        Ss     0:00 /sbin/docker-init -- /usr/bin/ceph-exporter -n client.ceph-exporter.dev-server -f --sock-dir=/var/run/ceph/ --addrs=0.0.0.0 --port=9926 --prio-limit=5 --stats-period=5
+   5749 ?        Ss     0:00 /sbin/docker-init -- /bin/node_exporter --no-collector.timex --web.listen-address=:9100 --path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/rootfs
+   5768 ?        Ss     0:00 /sbin/docker-init -- /usr/bin/ceph-mon -n mon.dev-server -f --setuser ceph --setgroup ceph --default-log-to-file=false --default-log-to-stderr=true --default-log-stderr-prefix=debug  --default-mon-cluster-log-to-file=false --default-mon-cluster-log-to-stderr=true
+   5777 ?        Ss     0:00 /sbin/docker-init -- /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=15d --storage.tsdb.retention.size=0 --web.external-url=http://127.0.1.1:9095 --web.listen-address=:9095
+   5785 ?        Ss     0:00 /sbin/docker-init -- /usr/bin/ceph-crash -n client.crash.dev-server
+   5803 ?        Sl     0:06 /usr/bin/ceph-mon -n mon.dev-server -f --setuser ceph --setgroup ceph --default-log-to-file=false --default-log-to-stderr=true --default-log-stderr-prefix=debug  --default-mon-cluster-log-to-file=false --default-mon-cluster-log-to-stderr=true
+   5814 ?        Sl     0:01 /bin/alertmanager --cluster.listen-address=:9094 --web.listen-address=:9093 --config.file=/etc/alertmanager/alertmanager.yml
+   5817 ?        S      0:00 bash /usr/sbin/grafana-server --config=/etc/grafana/grafana.ini
+   5845 ?        Sl     0:10 /usr/bin/ceph-mgr -n mgr.dev-server.jxbuda -f --setuser ceph --setgroup ceph --default-log-to-file=false --default-log-to-stderr=true --default-log-stderr-prefix=debug 
+   5846 ?        Sl     0:04 /bin/node_exporter --no-collector.timex --web.listen-address=:9100 --path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/rootfs
+   5847 ?        Sl     0:00 /usr/bin/ceph-exporter -n client.ceph-exporter.dev-server -f --sock-dir=/var/run/ceph/ --addrs=0.0.0.0 --port=9926 --prio-limit=5 --stats-period=5
+   5849 ?        Sl     0:04 /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=15d --storage.tsdb.retention.size=0 --web.external-url=http://127.0.1.1:9095 --web.listen-address=:9095
+   5855 ?        S      0:00 /usr/bin/python3 -s /usr/bin/ceph-crash -n client.crash.dev-server
+   5863 ?        Sl     0:11 /usr/share/grafana/bin/grafana server --config=/etc/grafana/grafana.ini
+   6182 ?        Ss     0:00 sshd: root@notty
+   6269 ?        I      0:00 [kworker/13:2-events]
+   6289 ?        I      0:00 [kworker/9:3-mm_percpu_wq]
+   6295 ?        I      0:00 [kworker/31:2-cgroup_destroy]
+   6300 ?        Ss     0:00 sshd: leonematt [priv]
+   6311 ?        Ss     0:00 /usr/sbin/cron -f -P
+   6315 ?        Ssl    0:00 /usr/sbin/libvirtd
+   6322 ?        Ss     0:00 /usr/sbin/kerneloops --test
+   6332 ?        Ss     0:00 /usr/bin/netserver
+   6333 ?        Ss     0:00 /usr/sbin/kerneloops
+   6349 ?        Ss     0:00 /lib/systemd/systemd --user
+   6350 ?        S      0:00 (sd-pam)
+   6377 ?        Ssl    0:00 /usr/sbin/gdm3
+   6392 ?        Ss     0:00 /lib/systemd/systemd --user
+   6393 ?        S      0:00 (sd-pam)
+   6402 ?        Ss     0:00 /snap/snapd-desktop-integration/253/usr/bin/snapd-desktop-integration
+   6449 ?        Ss     0:00 /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+   6467 ?        Ssl    0:00 /usr/libexec/xdg-document-portal
+   6489 ?        Ssl    0:00 /usr/libexec/xdg-permission-store
+   6505 ?        Ss     0:00 fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/0/doc
+   6522 ?        S<sl   0:00 /usr/bin/pipewire
+   6523 ?        Ssl    0:00 /usr/bin/pipewire-media-session
+   6524 ?        S<sl   0:00 /usr/bin/pulseaudio --daemonize=no --log-target=journal
+   6535 ?        Ss     0:00 /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+   6544 ?        SNsl   0:00 /usr/libexec/rtkit-daemon
+   6563 ?        Ssl    0:00 /usr/libexec/xdg-document-portal
+   6567 ?        Ssl    0:00 /usr/libexec/xdg-permission-store
+   6574 ?        Ss     0:00 fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/128/doc
+   6627 ?        Sl     0:00 gdm-session-worker [pam/gdm-launch-environment]
+   6638 tty1     Ssl+   0:00 /usr/libexec/gdm-x-session dbus-run-session -- gnome-session --autostart /usr/share/gdm/greeter/autostart
+   6640 tty1     Sl+    0:00 /usr/lib/xorg/Xorg vt1 -displayfd 3 -auth /run/user/128/gdm/Xauthority -nolisten tcp -background none -noreset -keeptty -novtswitch -verbose 3
+   6687 tty1     S+     0:00 dbus-run-session -- gnome-session --autostart /usr/share/gdm/greeter/autostart
+   6688 tty1     S+     0:00 dbus-daemon --nofork --print-address 4 --session
+   6689 tty1     Sl+    0:00 /usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart
+   6702 tty1     Sl+    0:00 /usr/libexec/at-spi-bus-launcher
+   6708 tty1     S+     0:00 /usr/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 11 --address=unix:path=/run/user/128/at-spi/bus_0
+   6732 ?        I<     0:00 [kworker/u133:2-ttm]
+   6739 tty1     Sl+    0:00 /usr/bin/gnome-shell
+   6771 ?        I      0:00 [kworker/0:2]
+   6776 tty1     Sl+    0:00 /usr/libexec/xdg-permission-store
+   6783 ?        Ssl    0:00 /usr/libexec/upowerd
+   6786 ?        Ssl    0:00 /usr/libexec/packagekitd
+   6790 tty1     Sl+    0:00 /usr/bin/gjs /usr/share/gnome-shell/org.gnome.Shell.Notifications
+   6792 tty1     Sl+    0:00 /usr/libexec/at-spi2-registryd --use-gnome-session
+   6813 tty1     Sl+    0:00 /usr/libexec/gsd-sharing
+   6815 tty1     Sl+    0:00 /usr/libexec/gsd-wacom
+   6816 tty1     Sl     0:00 ibus-daemon --panel disable --xim
+   6817 tty1     Sl+    0:00 /usr/libexec/gsd-color
+   6821 tty1     Sl+    0:00 /usr/libexec/gsd-keyboard
+   6823 tty1     Sl+    0:00 /usr/libexec/gsd-print-notifications
+   6824 tty1     Sl+    0:00 /usr/libexec/gsd-rfkill
+   6826 tty1     Sl+    0:00 /usr/libexec/gsd-smartcard
+   6831 tty1     Sl+    0:00 /usr/libexec/gsd-datetime
+   6834 tty1     Sl+    0:00 /usr/libexec/gsd-media-keys
+   6838 tty1     Sl+    0:00 /usr/libexec/gsd-screensaver-proxy
+   6840 tty1     Sl+    0:00 /usr/libexec/gvfsd
+   6844 tty1     Sl+    0:00 /usr/libexec/gsd-sound
+   6850 tty1     Sl+    0:00 /usr/libexec/gsd-a11y-settings
+   6854 tty1     Sl+    0:00 /usr/libexec/gsd-housekeeping
+   6861 tty1     Sl+    0:00 /usr/libexec/gsd-power
+   6865 tty1     Sl     0:00 /usr/libexec/ibus-memconf
+   6889 tty1     Sl+    0:00 /usr/libexec/ibus-portal
+   6906 tty1     Sl+    0:00 /usr/libexec/gsd-printer
+   6919 ?        Ssl    0:00 /usr/libexec/colord
+   6936 tty1     Sl+    0:00 /usr/bin/gjs /usr/share/gnome-shell/org.gnome.ScreenSaver
+   6956 tty1     Sl     0:00 /usr/libexec/ibus-engine-simple
+   6992 ?        Sl     0:00 /snap/snapd-desktop-integration/253/usr/bin/snapd-desktop-integration
+   6998 ?        Ss     0:00 /lib/systemd/systemd --user
+   6999 ?        S      0:00 (sd-pam)
+   7005 ?        Ssl    0:00 /usr/bin/pipewire
+   7006 ?        Ssl    0:00 /usr/bin/pipewire-media-session
+   7007 ?        Ssl    0:00 /usr/bin/pulseaudio --daemonize=no --log-target=journal
+   7008 ?        Ss     0:00 /snap/snapd-desktop-integration/253/usr/bin/snapd-desktop-integration
+   7060 ?        Ss     0:00 /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+   7067 ?        Ssl    0:00 /usr/libexec/xdg-document-portal
+   7068 ?        S      0:01 sshd: leonematt@notty
+   7071 ?        Ssl    0:00 /usr/libexec/xdg-permission-store
+   7077 ?        Ss     0:00 fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/1000/doc
+   7104 ?        Ss     0:00 sh
+   7137 ?        Sl     0:01 /home/leonematt/.vscode-server/code-91fbdddc47bc9c09064bf7acf133d22631cbf083 command-shell --cli-data-dir /home/leonematt/.vscode-server/cli --parent-process-id 7104 --on-host=127.0.0.1 --on-port
+   7180 ?        Sl     0:00 /snap/snapd-desktop-integration/253/usr/bin/snapd-desktop-integration
+   7182 ?        S<     0:00 [krfcommd]
+   7206 ?        S      0:00 sh /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/bin/code-server --connection-token=remotessh --accept-server-license-terms --start-server --enable-remote-auto-shutdown --socket-path=/tmp/code-44bd39ed-ce1d-442b-886f-dabcf055b0e4
+   7210 ?        Sl     0:02 /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/node /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/out/server-main.js --connection-token=remotessh --accept-server-license-terms --start-server --enable-remote-auto-shutdown --socket-path=/tmp/code-44bd39ed-ce1d-442b-886f-dabcf055b0e4
+   7250 ?        Sl     0:07 /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/node --dns-result-order=ipv4first /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/out/bootstrap-fork --type=extensionHost --transformURIs --useHostProxy=false
+   7262 ?        Sl     0:02 /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/node /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/out/bootstrap-fork --type=fileWatcher
+   7275 ?        Sl     0:01 /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/node /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/out/bootstrap-fork --type=ptyHost --logsPath /home/leonematt/.vscode-server/data/logs/20250116T091442
+   7342 ?        Ss     0:00 sshd: leonematt [priv]
+   7343 ?        Ss     0:00 sshd: leonematt [priv]
+   7413 ?        S      0:00 sshd: leonematt@pts/6
+   7416 ?        S      0:02 sshd: leonematt@pts/5
+   7417 pts/6    Ss     0:00 -bash
+   7418 pts/5    Ss+    0:00 -bash
+   7447 pts/7    Ss+    0:00 /bin/bash --init-file /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+   7462 ?        Sl     0:29 /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/node /home/leonematt/.vscode-server/extensions/ms-python.vscode-pylance-2024.12.1/dist/server.bundle.js --cancellationReceive=file:b3323f53622d23c4ed4cdb20c7f64f1ec569ab08e9 --node-ipc --clientProcessId=7250
+   8017 pts/0    Ss+    0:00 /bin/bash --init-file /home/leonematt/.vscode-server/cli/servers/Stable-91fbdddc47bc9c09064bf7acf133d22631cbf083/server/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-bash.sh
+   8576 ?        I      0:00 [kworker/u130:8-events_power_efficient]
+   9368 ?        I      0:00 [kworker/6:0]
+  10403 ?        I      0:00 [kworker/u130:9-events_unbound]
+  10611 ?        I      0:00 [kworker/25:1-cgroup_destroy]
+  10714 ?        I      0:00 [kworker/u129:1-flush-259:6]
+  10715 ?        I      0:00 [kworker/u129:3-flush-259:6]
+  11220 ?        I      0:00 [kworker/2:2-events]
+  11283 ?        I      0:00 [kworker/u130:3-flush-259:6]
+  11360 ?        I      0:00 [kworker/u128:1-mlx5_cmd_0000:01:00.1]
+  11508 ?        I      0:00 [kworker/9:0-events]
+  11621 ?        I      0:00 [kworker/u129:5-flush-259:6]
+  11851 ?        I      0:00 [kworker/u129:6-flush-259:6]
+  12544 ?        I      0:00 [kworker/u130:0-flush-259:6]
+  12604 ?        I      0:00 [kworker/24:2]
+  12672 ?        I      0:00 [kworker/u130:1-flush-259:6]
+  12734 ?        I      0:00 [kworker/30:2]
+  12836 ?        I      0:00 [kworker/u130:4-flush-259:6]
+  13021 ?        Ssl    0:14 qemu-system-x86_64 -nographic -monitor unix:/tmp/a6fc4bb7-d559-46a6-af70-1229d55af54f.sock,server,nowait -serial pty -readconfig /IGS/compute/vms/a6fc4bb7-d559-46a6-af70-1229d55af54f/a6fc4bb7-d559-46a6-af70-1229d55af54f.conf -net nic -net user
+  13024 ?        S      0:00 [kvm-nx-lpage-recovery-13021]
+  13027 ?        S      0:00 [kvm-pit/13021]
+  13055 ?        I      0:00 [kworker/u130:6-events_power_efficient]
+  13116 ?        I      0:00 [kworker/u129:0]
+  13117 ?        I      0:00 [kworker/25:0-mm_percpu_wq]
+  13132 ?        S      0:00 sleep 180
+  13261 ?        I      0:00 [kworker/22:2]
+  13273 pts/6    R+     0:00 ps ax
