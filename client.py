@@ -22,9 +22,8 @@ from storage import storage
 
 def print_subsytems():
     print("\nPress 1 to invoke compute subsystem")
-    print("Press 2 to invoke network subsystem")
-    print("Press 3 to invoke storage subsystem")
-    print("Press 4 to exit the dataplane")
+    print("Press 2 to invoke storage subsystem")
+    print("Press 3 to exit the dataplane")
 
 def print_compute_commands():
     print("\nPress 1 to create a VM")
@@ -34,7 +33,8 @@ def print_compute_commands():
     print("Press 5 to resume a VM")
     print("Press 6 to stop a VM")
     print("Press 7 to get a VM's status")
-    print("Press 8 to connect to a VM")
+    print("Press 8 to connect to a VM over serial")
+    print("Press 9 to connect to a VM over SSH")
 
 def print_storage_commands():
     print("\nPress 1 to get system disks")
@@ -54,12 +54,12 @@ def dataplane_shell(compute_stub=None, storage_stub=None):
             command = input("\n")
             compute.process_compute_command(command, compute_stub)
 
-        elif (subsystem == "3"):
+        elif (subsystem == "2"):
             print_storage_commands()
             command = input("\n")
             storage.process_storage_command(command, storage_stub, compute_stub)
 
-        elif (subsystem == "4"):
+        elif (subsystem == "3"):
             exit()
 
 def main():

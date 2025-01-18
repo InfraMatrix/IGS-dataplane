@@ -24,7 +24,12 @@ import shutil
 import select
 import re
 import grpc
+import json
 from concurrent import futures
+
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
 
 from .distro_manager import DistroManager
 from .vm import VM
@@ -53,8 +58,8 @@ class VMManager():
     def stop_vm(self): ...
 
     def get_vm_status(self): ...
+    def get_vm_link(self): ...
 
-    def connect_to_vm(self): ...
 
     def _send_command_to_vm(self, curr_vm, cmd): ...
 
@@ -75,8 +80,9 @@ class VMManager():
 
         for d in os.listdir(f"{self._vm_location}/"):
             vm_tap_intf = None
-            vm = VM(d, disk_location=f"{self._vm_location}/{d}/{d}.qcow2", tap_intf=vm_tap_intf, mac_address=self._network_manager.generate_mac())
-
+            vm_ip_port = self._network_manager.acquire_vm_port(d)
+            vm = VM(d, disk_location=f"{self._vm_location}/{d}/{d}.qcow2", tap_intf=vm_tap_intf,
+                    mac_address=self._network_manager.generate_mac(), ip_port=vm_ip_port)
             self._vms.append(vm)
             self._down_vms.append(vm)
 
@@ -135,9 +141,64 @@ class VMManager():
         self.copy_vm_image(vm_uuid)
         self.write_vm_config(vm_uuid)
 
-        vm_tap_intf = None
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+            backend=default_backend()
+        )
+        private_key_str = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        ).decode('utf-8')
 
-        new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf, mac_address=self._network_manager.generate_mac())
+        public_key = private_key.public_key()
+        public_key_bytes = public_key.public_bytes(
+            encoding=serialization.Encoding.OpenSSH,
+            format=serialization.PublicFormat.OpenSSH
+        )
+        public_key_str = public_key_bytes.decode('utf-8')
+        public_key_str = public_key_str + f" {os.getlogin()}@{socket.gethostname()}"
+
+        with open(f"{self._vm_location}/{vm_uuid}/id_rsa", "w") as pkf:
+            pkf.write(private_key_str)
+            os.chmod(f"{self._vm_location}/{vm_uuid}/id_rsa", 0o600)
+            pkf.close()
+
+        with open(f"{self._vm_location}/{vm_uuid}/id_rsa.pub", "w") as pkf:
+            pkf.write(public_key_str)
+            pkf.close()
+
+        with open(f"compute/provisioning/vm_config/user-data", 'r') as udf:
+            data = udf.read()
+            data = data + "\n" + " " * 6 + f"- {public_key_str}\n"
+
+        with open(f"{self._vm_location}/{vm_uuid}/user-data", 'w') as wdf:
+            wdf.write(data)
+        os.chmod(f"{self._vm_location}/{vm_uuid}/user-data", 0o600)
+
+        data = f"instance-id: {vm_uuid}\n"
+        data = data + f"local-hostname: ubuntu\n"
+
+        with open(f"{self._vm_location}/{vm_uuid}/meta-data", 'w') as wdf:
+            wdf.write(data)
+        os.chmod(f"{self._vm_location}/{vm_uuid}/meta-data", 0o644)
+
+        private_key_str = ""
+        public_key_str = ""
+
+        subprocess.run(["genisoimage",
+            "-output", f"{self._vm_location}/{vm_uuid}/cloud-init.iso",
+            "-volid", "cidata",
+            "-joliet", "-rock",
+            "-input-charset", "utf-8",
+            f"{self._vm_location}/{vm_uuid}/user-data", f"{self._vm_location}/{vm_uuid}/meta-data"]
+        )
+
+        vm_tap_intf = None
+        vm_ip_port = self._network_manager.acquire_vm_port(vm_uuid)
+        new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf,
+                    mac_address=self._network_manager.generate_mac(), ip_port=vm_ip_port)
 
         self._vms.append(new_vm)
         self._down_vms.append(new_vm)
@@ -184,13 +245,16 @@ class VMManager():
                 "-monitor", f"unix:/tmp/{curr_vm.name}.sock,server,nowait",
                 "-serial", "pty",
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
-                "-net", "nic",
-                "-net", "user",
+                "-netdev", f"user,id=net0,hostfwd=tcp:127.0.0.1:{curr_vm.ip_port}-:22",
+                "-device", "virtio-net-pci,netdev=net0",
+                "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
+                "-device", "virtio-serial-pci",
+                "-chardev", f"socket,id=ch0,path=/tmp/{curr_vm.name}_qga.sock,server=on,wait=off",
+                "-device", "virtserialport,chardev=ch0,name=org.qemu.guest_agent.0",
             ]
 
             process = subprocess.Popen(
                 run_vm_cmd,
-                # Uncomment for testing that vms run
                 start_new_session = True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -239,6 +303,8 @@ class VMManager():
             self._down_vms.append(curr_vm)
             self._live_vms.remove(curr_vm)
 
+            self._network_manager.release_vm_port(curr_vm.name)
+
             if (curr_vm in self._running_vms):
                 self._running_vms.remove(curr_vm)
 
@@ -279,49 +345,6 @@ class VMManager():
         self._running_vms.remove(curr_vm)
 
         return curr_vm.name
-
-    def get_vm_status(self, vm_num=-1):
-        num_vms = len(self._live_vms)
-        curr_vm = self._live_vms[vm_num]
-
-        try:
-            cmd_output = self._send_command_to_vm(curr_vm, "info status")
-            status = re.search(r"VM status: (\w+)", cmd_output).group(1)
-
-        except Exception as e:
-            print(f"Failed to start vm: {e}")
-
-        return status
-
-    def connect_to_vm(self):
-        num_vms = len(self._running_vms)
-        vm_num = -1
-        while (vm_num < 0 or vm_num > num_vms):
-
-            print("Input the vm that you want to connect to over serial :")
-
-            for i in range(1, len(self._running_vms) + 1):
-                print(f"{i}: {self._running_vms[i-1].name}")
-
-            vm_num = int(input("")) - 1
-
-        curr_vm = self._running_vms[vm_num]
-
-        print(f"Attempting to patch you into {curr_vm.name}\n")
-
-        try:
-            subprocess.run([
-                'socat', '-',
-                f"{curr_vm.serial_conn}"
-            ], check=True)
-
-            return True
-
-        except Exception as e:
-            print(f"Failed to connect to VM: {e}")
-
-        except KeyboardInterrupt:
-            print(f"\n\nExited from: {curr_vm.name}\n")
 
     def _send_command_to_vm(self, curr_vm, cmd):
         sock = curr_vm.hv_conn
@@ -384,3 +407,40 @@ class VMManager():
 
         except Exception as e:
             print(f"Failed to open instance config file: {e}")
+
+    def get_vm_status(self, vm_num=-1):
+        curr_vm = self._live_vms[vm_num]
+
+        try:
+            cmd_output = self._send_command_to_vm(curr_vm, "info status")
+            status = re.search(r"VM status: (\w+)", cmd_output).group(1)
+
+        except Exception as e:
+            print(f"Failed to start vm: {e}")
+
+        return status
+
+    def get_vm_link(self, vm_num=-1):
+        curr_vm = self._live_vms[vm_num]
+
+        socket_path = f"/tmp/{curr_vm.name}_qga.sock"
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            sock.connect(socket_path)
+            command = json.dumps({"execute": "guest-network-get-interfaces"})
+            sock.send(command.encode())
+
+            response = "" + sock.recv(4096).decode()
+            interfaces = json.loads(response)
+            for iface in interfaces["return"]:
+                if iface["name"] != "lo":
+                    for addr in iface["ip-addresses"]:
+                        if addr["ip-address-type"] == "ipv4" and addr["ip-address"].startswith("10"):
+                            return (addr["ip-address"], f"{self._network_manager.port_map[curr_vm.name]}")
+
+            sock.close()
+
+        except Exception as e:
+            print(f"Failed to get VM IP: {e}")
+
+        return ""

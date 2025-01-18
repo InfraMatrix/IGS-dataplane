@@ -38,7 +38,8 @@ install_python_dependencies()
     tqdm \
     pyroute2 \
     pyparted \
-    pyyaml
+    pyyaml \
+    cryptography
 
     deactivate
 }
