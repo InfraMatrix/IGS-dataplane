@@ -1,37 +1,33 @@
 #cloud-config
 
-packages:
-  - qemu-guest-agent
+#packages:
+#  - qemu-guest-agent
 
-write_files:
-  - path: /etc/systemd/system/qemu-guest-agent.service.d/override.conf
-    content: |
-      [Install]
-      WantedBy=multi-user.target
+#write_files:
+#  - path: /etc/systemd/system/qemu-guest-agent.service.d/override.conf
+#    content: |
+#      [Install]
+#      WantedBy=multi-user.target
 
 ssh_pwauth: true
-
-kernel:
-  cmdline:
-    - console=ttyS0,115200
-    - console=tty0
-
-grub:
-  config:
-    - linux_default: "console=ttyS0,115200 console=tty0"
-
-
-runcmd:
-  - [ systemctl, daemon-reload ]
-  - [ systemctl, enable, qemu-guest-agent ]
-  - [ systemctl, start, qemu-guest-agent ]
-  - [ systemctl, restart, ssh ]
-
 ssh_deletekeys: false
+
+kernel_cmdline:
+  - console=ttyS0
+
+#runcmd:
+#  - [ ufw, enable]
+#  - [ ufw, allow, ssh]
+#  - [ systemctl, daemon-reload ]
+#  - [ systemctl, enable, qemu-guest-agent ]
+#  - [ systemctl, start, qemu-guest-agent ]
+#  - [ systemctl, status, qemu-guest-agent ]
+#  - [ systemctl, restart, ssh ]
 
 users:
   - name: ubuntu
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     groups: sudo
     shell: /bin/bash
+    lock_passwd: false
     ssh_authorized_keys:

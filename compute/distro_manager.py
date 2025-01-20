@@ -72,7 +72,10 @@ class DistroManager:
             print("Found Ubuntu image\n")
             return
 
-        self.generate_ubuntu_image(version=version)
+        #self.generate_ubuntu_image(version=version)
+
+        print("An ubuntu base image has not been created yet. Please follow the creating_ubuntu_base_image steps to enable IGS.")
+        exit()
 
     def generate_ubuntu_image(self, version="22.04.5"):
         image_path = f"/IGS/compute/images/ubuntu_{version}_base.qcow2"
@@ -100,24 +103,37 @@ class DistroManager:
 
         run_ubuntu_base_generation_cmd = [
             "qemu-system-x86_64",
+            "-machine", "q35",
             "-enable-kvm",
-            "-m", "2048",
+            "-m", "6G",
             "-cpu", "host",
+            "-serial", "mon:stdio",
             "-drive", f"file={image_path},format=qcow2",
             "-drive", f"file=/IGS/compute/isos/ubuntu/ubuntu-22.04.5-live-server-amd64.iso,media=cdrom",
-            "-nic", "user",
+            "-net", "nic", "-net", "user",
             "-kernel", "iso_mount/casper/vmlinuz",
             "-initrd", "iso_mount/casper/initrd",
             "-nographic",
+            "-boot", "menu=on",
             "-append", "\"console=ttyS0 only-ubiquity\""
         ]
         process = subprocess.run(run_ubuntu_base_generation_cmd)
 
-        kill_qemu_cmd = [
-            "killall",
-            "-9", "qemu-system-x86_64"
+        mount_iso_cmd = [
+            "umount", "iso_mount"
         ]
-        process = subprocess.run(kill_qemu_cmd)
+        subprocess.run(mount_iso_cmd)
+
+        shutil.rmtree('iso_mount')
+
+        setup_base_cmdline = [
+            "./setup/setup_base_image.sh"
+        ]
+        subprocess.run(setup_base_cmdline)
+
+        os.system('clear')
+
+        print("Compressing the Ubuntu base image. Please wait, this will take a while..\n")
 
         compress_ubuntu_base_image_cmd = [
             "qemu-img",
@@ -126,13 +142,8 @@ class DistroManager:
             "-O", "qcow2",
             f"{image_path}", f"{self.image_location}/compressed_ubuntu"
         ]
-
-        print("Compressing the Ubuntu image\n")
-
         subprocess.run(compress_ubuntu_base_image_cmd)
 
         shutil.move(f"{self.image_location}/compressed_ubuntu", f"{image_path}")
-
-        print("Finished building the base image\n")
 
         return 0

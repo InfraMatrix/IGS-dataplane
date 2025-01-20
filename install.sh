@@ -22,7 +22,8 @@ install_python_dependencies()
     python3-parted \
     libparted-dev \
     libvirt-dev \
-    libvirt-daemon-system > /dev/null
+    libvirt-daemon-system > /dev/null \
+    genisoimage
 
     python3 -m venv IGS_venv
     source IGS_venv/bin/activate

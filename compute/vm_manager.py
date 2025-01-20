@@ -242,16 +242,20 @@ class VMManager():
             run_vm_cmd = [
                 "qemu-system-x86_64",
                 "-nographic",
-                "-monitor", f"unix:/tmp/{curr_vm.name}.sock,server,nowait",
                 "-serial", "pty",
-                "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
-                "-netdev", f"user,id=net0,hostfwd=tcp:127.0.0.1:{curr_vm.ip_port}-:22",
-                "-device", "virtio-net-pci,netdev=net0",
-                "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
+                "-monitor", f"unix:/tmp/{curr_vm.name}.sock,server,nowait",
                 "-device", "virtio-serial-pci",
                 "-chardev", f"socket,id=ch0,path=/tmp/{curr_vm.name}_qga.sock,server=on,wait=off",
                 "-device", "virtserialport,chardev=ch0,name=org.qemu.guest_agent.0",
+                "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
+                "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
+                "-net", "nic", "-net", "user",
+                "-netdev", f"user,id=net0,hostfwd=tcp::{curr_vm.ip_port}-:22",
+                "-device", "virtio-net-pci,netdev=net0"
+
             ]
+
+            print(' '.join(run_vm_cmd))
 
             process = subprocess.Popen(
                 run_vm_cmd,
@@ -260,10 +264,10 @@ class VMManager():
                 stderr=subprocess.PIPE,
                 text=True,
                 universal_newlines=True,
-                bufsize=0
+                bufsize=1
             )
 
-            readable, _, _ = select.select([process.stdout, process.stderr], [], [], 2.0)
+            readable, _, _ = select.select([process.stdout, process.stderr], [], [], 5.0)
 
             match = None
             for pipe in readable:
@@ -273,6 +277,8 @@ class VMManager():
                     match = re.search(r"char device redirected to (/dev/pts/\d+)", line)
                     if (match):
                         break
+
+            print(match.group(1))
 
             serial_port = match.group(1)
 
