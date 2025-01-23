@@ -129,8 +129,9 @@ class VMManager():
         return self._running_vms[vm_num].serial_conn
     
     def create_vm(self):
-
-        self._distro_manager.verify_ubuntu_image()
+        ret = self._distro_manager.verify_ubuntu_image()
+        if (ret != 0):
+            return ""
 
         print("Creating the vm\n")
 

@@ -66,16 +66,16 @@ class DistroManager:
         print("\nFinished downloading Ubuntu iso")
 
     def verify_ubuntu_image(self, version="22.04.5"):
-        self.download_ubuntu_iso(version=version)
+        #self.download_ubuntu_iso(version=version)
 
         if os.path.exists(f"{self.image_location}/ubuntu_{version}_base.qcow2"):
             print("Found Ubuntu image\n")
-            return
+            return 0
 
         #self.generate_ubuntu_image(version=version)
 
         print("An ubuntu base image has not been created yet. Please follow the creating_ubuntu_base_image steps to enable IGS.")
-        exit()
+        return 1
 
     def generate_ubuntu_image(self, version="22.04.5"):
         image_path = f"/IGS/compute/images/ubuntu_{version}_base.qcow2"

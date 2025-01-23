@@ -53,8 +53,11 @@ def process_compute_command(cmd="", stub=None):
     if (cmd == "1"):
         request = compute_pb2.CreateVMRequest()
         response = stub.CreateVM(request)
-
-        print(f"VM Created: {response.vm_name}")
+        if(response.vm_name == ""):
+            print(f"Failed to create VM. You must first create the base ubuntu image in order to generate a VM based off of it.")
+            print(f"Please follow the creating_base_ubuntu_image guide in the documentation.")
+        else:
+            print(f"VM Created: {response.vm_name}")
 
     elif (cmd == "2"):
         vm_num, vm_name = pick_vm(stub=stub, status=1, action="delete")
