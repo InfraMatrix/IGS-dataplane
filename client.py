@@ -34,7 +34,7 @@ def print_compute_commands():
     print("Press 6 to stop a VM")
     print("Press 7 to get a VM's status")
     print("Press 8 to connect to a VM over serial")
-    print("Press 9 to connect to a VM over SSH")
+    #print("Press 9 to connect to a VM over SSH")
 
 def print_storage_commands():
     print("\nPress 1 to get system disks")

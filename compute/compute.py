@@ -158,7 +158,7 @@ def process_compute_command(cmd="", stub=None):
 
         client.close()
 
-    elif (cmd == "9"):
+        """elif (cmd == "9"):
         vm_num, vm_name = pick_vm(stub=stub, status=5, action="connect to over SSH")
         if (vm_num == -1):
             return
@@ -176,7 +176,7 @@ def process_compute_command(cmd="", stub=None):
             f"ubuntu@localhost"
         ]
         print("Run the following command in another shell or this one after exiting the dataplane client:\n")
-        print(' '.join(ssh_command))
+        print(' '.join(ssh_command))"""
 
     else:
         print("Exiting")
