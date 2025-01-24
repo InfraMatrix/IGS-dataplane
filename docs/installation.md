@@ -22,3 +22,6 @@ cd IGS-dataplane
 
 You should see the following: 
 `Finished installing IGS`
+
+
+For the next step, before you run IGS, you must follow the creating base ubuntu server image [guide](creating_base_vm.md)
