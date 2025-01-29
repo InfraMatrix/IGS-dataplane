@@ -14,13 +14,16 @@ install_python_dependencies()
     libparted-dev \
     libvirt-dev \
     libvirt-daemon-system > /dev/null \
-    genisoimage
+    genisoimage \
+    openvswitch-switch \
+    openvswitch-common
 
     python3 -m venv IGS_venv
     source IGS_venv/bin/activate
 
     sudo systemctl start libvirtd
     sudo systemctl enable libvirtd
+    sudo systemctl enable openvswitch-switch.service
 
     pip3 install \
     grpcio-tools \
