@@ -244,8 +244,8 @@ class VMManager():
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
                 "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
                 "-net", "nic", "-net", "user",
-                "-netdev", f"user,id=net0,hostfwd=tcp::{curr_vm.ip_port}-:22",
-                "-device", "virtio-net-pci,netdev=net0"
+                "-netdev", f"tap,id={curr_vm.tap_intf},ifname=f{curr_vm.tap_intf},script=no,downscript=no",
+                "-device", f"virtio-net-pci,netdev={curr_vm.tap_intf},mac={curr_vm.mac_address}"
 
             ]
 
