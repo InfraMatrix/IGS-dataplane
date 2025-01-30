@@ -6,7 +6,16 @@
 
 from pyroute2 import IPRoute
 import subprocess
+import sys
 import random
+
+def run_network_cmd(cmd):
+    try:
+        subprocess.run(cmd, check=True)
+        return True
+    except Exception as e:
+        print(f"Command: {cmd} failed: {e}")
+        return False
 
 class VMNetworkManager:
 
@@ -16,6 +25,12 @@ class VMNetworkManager:
         self._used_macs = []
         self.vm_ssh_ports = list(range(7600,7700))
         self.port_map = {}
+
+        add_bridge_cmd = ["ovs-vsctl", "add-br", "ovs-vm-bridge"]
+        run_network_cmd(add_bridge_cmd)
+
+        setup_bridge_cmd = ["ip", "link", "set", "ovs-vm-bridge", "up"]
+        run_network_cmd(setup_bridge_cmd)
 
     def setup_vm_networking_interface(self, vm_name=""):
         tap_name = vm_name + "_tap"
