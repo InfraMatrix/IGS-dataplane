@@ -20,7 +20,6 @@ def run_network_cmd(cmd):
 class NetworkManager:
 
     def __init__(self):
-
         self._host_network_interface = IPRoute()
         self._used_macs = []
         self.vm_ssh_ports = list(range(7600,7700))
@@ -60,3 +59,28 @@ class NetworkManager:
     def release_vm_port(self, vm_name):
         self.vm_ssh_ports.append(self.port_map(vm_name))
         self.port_map.remove(vm_name)
+
+    def allocate_vm_tap_interface(self, vm_name):
+        tap_name = f"tap_{vm_name}"[:15]
+
+        print("Creating VM TAP")
+
+        create_tap_cmd = ["ip", "tuntap", "add", "dev", tap_name, "mode", "tap"]
+        run_network_cmd(create_tap_cmd)
+
+        add_tap_ovs_cmd = ["ovs-vsctl", "add-port", "ovs-vm-bridge", tap_name]
+        run_network_cmd(add_tap_ovs_cmd)
+
+        set_tap_up_cmd = ["ip", "link", "set", tap_name, "up"]
+        run_network_cmd(set_tap_up_cmd)
+
+        return tap_name
+
+    def deallocate_vm_tap_interface(self, vm_name):
+        tap_name = f"tap_{vm_name}"[:15]
+
+        add_tap_ovs_cmd = ["ovs-vsctl", "del-port", "ovs-vm-bridge", tap_name]
+        run_network_cmd(add_tap_ovs_cmd)
+
+        create_tap_cmd = ["ip", "tuntap", "del", "dev", tap_name, "mode", "tap"]
+        run_network_cmd(create_tap_cmd)

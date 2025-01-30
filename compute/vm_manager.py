@@ -70,8 +70,8 @@ class VMManager():
         count = 0
 
         for d in os.listdir(f"{self._vm_location}/"):
-            vm_tap_intf = None
             vm_ip_port = self._network_manager.acquire_vm_port(d)
+            vm_tap_intf = self._network_manager.allocate_vm_tap_interface(d)
             vm = VM(d, disk_location=f"{self._vm_location}/{d}/{d}.qcow2", tap_intf=vm_tap_intf,
                     mac_address=self._network_manager.generate_mac(), ip_port=vm_ip_port)
             self._vms.append(vm)
@@ -187,8 +187,8 @@ class VMManager():
             f"{self._vm_location}/{vm_uuid}/user-data", f"{self._vm_location}/{vm_uuid}/meta-data"]
         )
 
-        vm_tap_intf = None
         vm_ip_port = self._network_manager.acquire_vm_port(vm_uuid)
+        vm_tap_intf = self._network_manager.allocate_vm_tap_interface(vm_uuid)
         new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf,
                     mac_address=self._network_manager.generate_mac(), ip_port=vm_ip_port)
 
@@ -210,6 +210,8 @@ class VMManager():
 
             self._stopped_vms.append(curr_vm)
             self._running_vms.remove(curr_vm)
+
+        self._network_manager.deallocate_vm_tap_interface(curr_vm.name)
 
         shutil.rmtree(f"{self._vm_location}/{curr_vm.name}")
 
