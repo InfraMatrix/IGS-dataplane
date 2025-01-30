@@ -31,6 +31,9 @@ class NetworkManager:
         setup_bridge_cmd = ["ip", "link", "set", "ovs-vm-bridge", "up"]
         run_network_cmd(setup_bridge_cmd)
 
+        add_bridge_ip_cmd = ["ip", "addr", "add", "192.168.100.1/24", "dev", "ovs-vm-bridge"]
+        run_network_cmd(add_bridge_ip_cmd)
+
     def setup_vm_networking_interface(self, vm_name=""):
         tap_name = vm_name + "_tap"
 
