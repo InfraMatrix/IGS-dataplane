@@ -17,7 +17,7 @@ def run_network_cmd(cmd):
         print(f"Command: {cmd} failed: {e}")
         return False
 
-class VMNetworkManager:
+class NetworkManager:
 
     def __init__(self):
 

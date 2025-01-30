@@ -28,7 +28,7 @@ from .generated import compute_pb2
 from .generated import compute_pb2_grpc
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from network.vm_network_manager import VMNetworkManager
+from network.network_manager import NetworkManager
 
 class VMManager():
 
@@ -65,7 +65,7 @@ class VMManager():
         self._running_vms = []
         self._stopped_vms = []
         self._distro_manager = DistroManager()
-        self._network_manager = VMNetworkManager()
+        self._network_manager = NetworkManager()
 
         count = 0
 
