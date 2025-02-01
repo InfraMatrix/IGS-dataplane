@@ -19,11 +19,12 @@ class VM:
 
     def __init__(self): ...
 
-    def __init__(self, vm_name, disk_location, tap_intf=None, hv_conn=None, serial_conn=None, mac_address=None, ip_port=None):
+    def __init__(self, vm_name, disk_location, tap_intf=None, hv_conn=None,
+                 serial_conn=None, ip_address=None, mac_address=None):
         self.name = vm_name
         self.disk_location = disk_location
         self.tap_intf = tap_intf
         self.hv_conn = hv_conn
         self.serial_conn = serial_conn
+        self.ip_address = ip_address
         self.mac_address = mac_address
-        self.ip_port = ip_port

@@ -9,6 +9,8 @@ import subprocess
 import sys
 import random
 
+from network.ip_manager import IPManager
+
 def run_network_cmd(cmd):
     try:
         subprocess.run(cmd, check=True)
@@ -24,6 +26,7 @@ class NetworkManager:
         self._used_macs = []
         self.vm_ssh_ports = list(range(7600,7700))
         self.port_map = {}
+        self.ip_manager = IPManager("192.168.100.1")
 
         add_bridge_cmd = ["ovs-vsctl", "add-br", "ovs-vm-bridge"]
         run_network_cmd(add_bridge_cmd)
@@ -33,6 +36,15 @@ class NetworkManager:
 
         add_bridge_ip_cmd = ["ip", "addr", "add", "192.168.100.1/24", "dev", "ovs-vm-bridge"]
         run_network_cmd(add_bridge_ip_cmd)
+
+        iptables_commands = [
+            ['sudo', 'iptables', '-t', 'nat', '-A', 'POSTROUTING', '-o', 'enp14s0', '-j', 'MASQUERADE'],
+            ['sudo', 'iptables', '-A', 'FORWARD', '-i', 'ovs-vm-bridge', '-o', 'enp14s0', '-j', 'ACCEPT'],
+            ['sudo', 'iptables', '-A', 'FORWARD', '-i', 'enp14s0', '-o', 'ovs-vm-bridge', '-m', 'state',
+                '--state', 'RELATED,ESTABLISHED', '-j', 'ACCEPT']
+        ]
+        for cmd in iptables_commands:
+            run_network_cmd(cmd)
 
     def setup_vm_networking_interface(self, vm_name=""):
         tap_name = vm_name + "_tap"
@@ -45,7 +57,7 @@ class NetworkManager:
         result = subprocess.run(['ovs-vsctl', 'add-port', "vm_switch", tap_name])
 
         return tap_name
-    
+
     def generate_mac(self):
         mac = ""
         while (mac not in self._used_macs):

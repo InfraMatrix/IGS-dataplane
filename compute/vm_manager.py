@@ -73,7 +73,8 @@ class VMManager():
             vm_ip_port = self._network_manager.acquire_vm_port(d)
             vm_tap_intf = self._network_manager.allocate_vm_tap_interface(d)
             vm = VM(d, disk_location=f"{self._vm_location}/{d}/{d}.qcow2", tap_intf=vm_tap_intf,
-                    mac_address=self._network_manager.generate_mac(), ip_port=vm_ip_port)
+                    ip_address=f"192.168.100.{self._network_manager.ip_manager.acquire_ip()}",
+                    mac_address=self._network_manager.generate_mac())
             self._vms.append(vm)
             self._down_vms.append(vm)
 
@@ -190,7 +191,8 @@ class VMManager():
         vm_ip_port = self._network_manager.acquire_vm_port(vm_uuid)
         vm_tap_intf = self._network_manager.allocate_vm_tap_interface(vm_uuid)
         new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf,
-                    mac_address=self._network_manager.generate_mac(), ip_port=vm_ip_port)
+                    ip_address=f"192.168.100.{self._network_manager.ip_manager.acquire_ip()}",
+                    mac_address=self._network_manager.generate_mac())
 
         self._vms.append(new_vm)
         self._down_vms.append(new_vm)
@@ -243,10 +245,9 @@ class VMManager():
                 "-device", "virtserialport,chardev=ch0,name=org.qemu.guest_agent.0",
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
                 "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
-                "-net", "nic", "-net", "user",
                 "-netdev", f"tap,id={curr_vm.tap_intf},ifname=f{curr_vm.tap_intf},script=no,downscript=no",
-                "-device", f"virtio-net-pci,netdev={curr_vm.tap_intf},mac={curr_vm.mac_address}"
-
+                "-device", f"virtio-net-pci,netdev={curr_vm.tap_intf},mac={curr_vm.mac_address}",
+                "-net", "nic", "-net", "user",
             ]
 
             print(' '.join(run_vm_cmd))
