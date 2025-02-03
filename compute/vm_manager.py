@@ -51,6 +51,7 @@ class VMManager():
     def get_vm_status(self): ...
     def get_vm_link(self): ...
 
+    def update_vm_cloud_init(self, vm_name, old_string="", new_string=""): ...
 
     def _send_command_to_vm(self, curr_vm, cmd): ...
 
@@ -164,10 +165,10 @@ class VMManager():
 
         with open(f"compute/provisioning/vm_config/user-data", 'r') as udf:
             data = udf.read()
-            data = data + "\n" + " " * 6 + f"- {public_key_str}\n"
 
         with open(f"{self._vm_location}/{vm_uuid}/user-data", 'w') as wdf:
             wdf.write(data)
+            wdf.close()
         os.chmod(f"{self._vm_location}/{vm_uuid}/user-data", 0o600)
 
         data = f"instance-id: {vm_uuid}\n"
@@ -177,22 +178,33 @@ class VMManager():
             wdf.write(data)
         os.chmod(f"{self._vm_location}/{vm_uuid}/meta-data", 0o644)
 
-        private_key_str = ""
-        public_key_str = ""
+        vm_ip_port = self._network_manager.acquire_vm_port(vm_uuid)
+        vm_tap_intf = self._network_manager.allocate_vm_tap_interface(vm_uuid)
+        vm_mac = f"{self._network_manager.generate_mac()}"
+        vm_ip = f"192.168.100.{self._network_manager.ip_manager.acquire_ip()}"
+
+        print(f"VM_MAC: {vm_mac}")
+        print(f"VM_IP: {vm_ip}")
+
+        self.update_vm_cloud_init(vm_uuid, old_string="SSH_KEY",
+            new_string=f"- {public_key_str}")
+
+        self.update_vm_cloud_init(vm_uuid, old_string="MAC_ADDRESS",
+            new_string=f"{vm_mac}")
+
+        self.update_vm_cloud_init(vm_uuid, old_string="IP_ADDRESS",
+            new_string=f"{vm_ip}")
 
         subprocess.run(["genisoimage",
             "-output", f"{self._vm_location}/{vm_uuid}/cloud-init.iso",
             "-volid", "cidata",
             "-joliet", "-rock",
             "-input-charset", "utf-8",
-            f"{self._vm_location}/{vm_uuid}/user-data", f"{self._vm_location}/{vm_uuid}/meta-data"]
-        )
+            f"{self._vm_location}/{vm_uuid}/user-data",
+            f"{self._vm_location}/{vm_uuid}/meta-data"])
 
-        vm_ip_port = self._network_manager.acquire_vm_port(vm_uuid)
-        vm_tap_intf = self._network_manager.allocate_vm_tap_interface(vm_uuid)
         new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf,
-                    ip_address=f"192.168.100.{self._network_manager.ip_manager.acquire_ip()}",
-                    mac_address=self._network_manager.generate_mac())
+            ip_address=vm_ip, mac_address=vm_mac)
 
         self._vms.append(new_vm)
         self._down_vms.append(new_vm)
@@ -445,3 +457,12 @@ class VMManager():
             print(f"Failed to get VM IP: {e}")
 
         return ""
+
+    def update_vm_cloud_init(self, vm_name, old_string="", new_string=""):
+        conf_path = f"{self._vm_location}/{vm_name}/user-data"
+        with open(conf_path, 'r') as file:
+            conf_data = file.read()
+        conf_data = conf_data.replace(old_string, new_string)
+
+        with open(conf_path, 'w') as file:
+            file.write(conf_data)

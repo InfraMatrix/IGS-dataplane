@@ -20,7 +20,7 @@ class IPManager:
         ip = next(iter(self.free_ips))
         del self.free_ips[ip]
         self.used_ips[ip] = vm_name
-        return
+        return ip
 
     def release_ip(self, ip):
         del self.used_ips[ip]

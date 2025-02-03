@@ -1,28 +1,30 @@
 #cloud-config
 
-#packages:
-#  - qemu-guest-agent
-
-#write_files:
-#  - path: /etc/systemd/system/qemu-guest-agent.service.d/override.conf
-#    content: |
-#      [Install]
-#      WantedBy=multi-user.target
-
 ssh_pwauth: true
-ssh_deletekeys: false
+ssh_deletekeys: true
 
 kernel_cmdline:
   - console=ttyS0
 
-#runcmd:
-#  - [ ufw, enable]
-#  - [ ufw, allow, ssh]
-#  - [ systemctl, daemon-reload ]
-#  - [ systemctl, enable, qemu-guest-agent ]
-#  - [ systemctl, start, qemu-guest-agent ]
-#  - [ systemctl, status, qemu-guest-agent ]
-#  - [ systemctl, restart, ssh ]
+write_files:
+  - path: /etc/netplan/99-netcfg.yaml
+    content: |
+      network:
+        version: 2
+        ethernets:
+          enp0s4:
+            match:
+              macaddress: "MAC_ADDRESS"
+            addresses:
+              - IP_ADDRESS/24
+            dhcp4: false
+            routes:
+              - to: default
+                via: 192.168.100.1
+            nameservers:
+              addresses: [8.8.8.8, 8.8.4.4]
+            optional: false
+    permissions: '0600'
 
 users:
   - name: ubuntu
@@ -31,3 +33,7 @@ users:
     shell: /bin/bash
     lock_passwd: false
     ssh_authorized_keys:
+      SSH_KEY
+
+runcmd:
+  - [ netplan, apply ]
