@@ -13,11 +13,14 @@ from network.ip_manager import IPManager
 
 def run_network_cmd(cmd):
     try:
-        subprocess.run(cmd, check=True)
-        return True
-    except Exception as e:
-        print(f"Command: {cmd} failed: {e}")
-        return False
+        result = subprocess.run(cmd,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            check=True)
+    except subprocess.CalledProcessError as e:
+        if e.returncode != 2 and "already exists" not in str(e.stderr):
+            print(f"Command: {cmd} failed: {e}")
+            return False
+    return True
 
 class NetworkManager:
 
