@@ -126,8 +126,6 @@ class VMManager():
         if (ret != 0):
             return ""
 
-        print("Creating the vm\n")
-
         vm_uuid = str(uuid.uuid4())
         vm_path = f"{vm_uuid}"
 
@@ -182,9 +180,6 @@ class VMManager():
         vm_tap_intf = self._network_manager.allocate_vm_tap_interface(vm_uuid)
         vm_mac = f"{self._network_manager.generate_mac()}"
         vm_ip = f"192.168.100.{self._network_manager.ip_manager.acquire_ip()}"
-
-        print(f"VM_MAC: {vm_mac}")
-        print(f"VM_IP: {vm_ip}")
 
         self.update_vm_cloud_init(vm_uuid, old_string="SSH_KEY",
             new_string=f"- {public_key_str}")
@@ -259,10 +254,7 @@ class VMManager():
                 "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
                 "-netdev", f"tap,id={curr_vm.tap_intf},ifname={curr_vm.tap_intf},script=no,downscript=no",
                 "-device", f"virtio-net-pci,netdev={curr_vm.tap_intf},mac={curr_vm.mac_address}",
-                #"-net", "nic", "-net", "user",
             ]
-
-            print(' '.join(run_vm_cmd))
 
             process = subprocess.Popen(
                 run_vm_cmd,
@@ -279,13 +271,9 @@ class VMManager():
             match = None
             for pipe in readable:
                 for line in pipe:
-                    print(f"QEMU output: {line}")
-
                     match = re.search(r"char device redirected to (/dev/pts/\d+)", line)
                     if (match):
                         break
-
-            print(match.group(1))
 
             serial_port = match.group(1)
 
@@ -377,14 +365,9 @@ class VMManager():
                 '-f', 'qcow2', vm_path,
                 f'10G'
             ], check=True)
-
-            print(f"Created disk image: {vm_path}")
-
             return True
-    
         except subprocess.CalledProcessError as e:
             print(f"Failed to create disk: {e}")
-
             return False
 
     def copy_vm_image(self, vm_id):
@@ -397,14 +380,12 @@ class VMManager():
                 f"{self._vm_location}/{vm_id}/{vm_id}.qcow2",
                 "10G"
             ]
-
             result = subprocess.run(
                 copy_image_cmd,
                 check = True,
                 capture_output = True,
                 text = True
             )
-
         except Exception as e:
             print(f"Failed to create vm disk: {e}")
 
@@ -414,23 +395,18 @@ class VMManager():
                 content = cfile.read()
                 content = content.replace("GNAME", vm_id)
                 content = content.replace("FPATH", f"/IGS/compute/vms/{vm_id}/{vm_id}.qcow2")
-
                 with open(f"/IGS/compute/vms/{vm_id}/{vm_id}.conf", "w") as fcfile:
                     fcfile.write(content)
-
         except Exception as e:
             print(f"Failed to open instance config file: {e}")
 
     def get_vm_status(self, vm_num=-1):
         curr_vm = self._live_vms[vm_num]
-
         try:
             cmd_output = self._send_command_to_vm(curr_vm, "info status")
             status = re.search(r"VM status: (\w+)", cmd_output).group(1)
-
         except Exception as e:
             print(f"Failed to start vm: {e}")
-
         return status
 
     def get_vm_link(self, vm_num=-1):
@@ -452,10 +428,8 @@ class VMManager():
                             return (addr["ip-address"], f"{self._network_manager.port_map[curr_vm.name]}")
 
             sock.close()
-
         except Exception as e:
             print(f"Failed to get VM IP: {e}")
-
         return ""
 
     def update_vm_cloud_init(self, vm_name, old_string="", new_string=""):
