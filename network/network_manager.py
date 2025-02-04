@@ -15,7 +15,7 @@ def run_network_cmd(cmd):
     try:
         result = subprocess.run(cmd,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            check=True)
+            check=False)
     except subprocess.CalledProcessError as e:
         if e.returncode != 2 and "already exists" not in str(e.stderr):
             print(f"Command: {cmd} failed: {e}")

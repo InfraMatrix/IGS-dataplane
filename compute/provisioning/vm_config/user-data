@@ -12,7 +12,7 @@ write_files:
       network:
         version: 2
         ethernets:
-          enp0s4:
+          enp0s3:
             match:
               macaddress: "MAC_ADDRESS"
             addresses:

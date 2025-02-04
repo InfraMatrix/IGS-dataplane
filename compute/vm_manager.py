@@ -257,9 +257,9 @@ class VMManager():
                 "-device", "virtserialport,chardev=ch0,name=org.qemu.guest_agent.0",
                 "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
                 "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
-                "-netdev", f"tap,id={curr_vm.tap_intf},ifname=f{curr_vm.tap_intf},script=no,downscript=no",
+                "-netdev", f"tap,id={curr_vm.tap_intf},ifname={curr_vm.tap_intf},script=no,downscript=no",
                 "-device", f"virtio-net-pci,netdev={curr_vm.tap_intf},mac={curr_vm.mac_address}",
-                "-net", "nic", "-net", "user",
+                #"-net", "nic", "-net", "user",
             ]
 
             print(' '.join(run_vm_cmd))
