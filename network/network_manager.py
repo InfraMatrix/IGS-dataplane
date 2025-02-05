@@ -81,8 +81,6 @@ class NetworkManager:
     def allocate_vm_tap_interface(self, vm_name):
         tap_name = f"tap_{vm_name}"[:15]
 
-        print("Creating VM TAP")
-
         create_tap_cmd = ["ip", "tuntap", "add", "dev", tap_name, "mode", "tap"]
         run_network_cmd(create_tap_cmd)
 
@@ -102,3 +100,7 @@ class NetworkManager:
 
         create_tap_cmd = ["ip", "tuntap", "del", "dev", tap_name, "mode", "tap"]
         run_network_cmd(create_tap_cmd)
+
+    def get_vm_ip(self, vm_name):
+        vm_ip = self.ip_manager.get_vm_ip(vm_name=vm_name)
+        return vm_ip

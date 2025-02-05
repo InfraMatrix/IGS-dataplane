@@ -8,6 +8,7 @@ class IPManager:
 
     def __init__(self, network_address=""):
         self.network_addr = network_address
+        self.network_subnet = '.'.join(network_address.split('.')[:3])
         self.start = 5
         self.end = 252
         self.used_ips = {}
@@ -19,10 +20,14 @@ class IPManager:
     def acquire_ip(self, vm_name=""):
         ip = next(iter(self.free_ips))
         del self.free_ips[ip]
-        self.used_ips[ip] = vm_name
+        self.used_ips[vm_name] = ip
         return ip
 
-    def release_ip(self, ip):
-        del self.used_ips[ip]
+    def release_ip(self, vm_name):
+        ip = self.used_ips[vm_name]
+        del self.used_ips[vm_name]
         self.free_ips[ip] = ""
         return
+
+    def get_vm_ip(self, vm_name=""):
+        return f"{self.network_subnet}.{self.used_ips[vm_name]}" or ""

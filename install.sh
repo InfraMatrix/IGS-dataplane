@@ -46,6 +46,9 @@ generate_grpc_scripts()
     cd compute
     sudo rm -rf generated
     ./generate_grpc_scripts.sh
+    cd ../network
+    sudo rm -rf generated
+    ./generate_grpc_scripts.sh
     cd ../storage
     sudo rm -rf generated
     ./generate_grpc_scripts.sh

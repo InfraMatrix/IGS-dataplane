@@ -55,7 +55,7 @@ class VMManager():
 
     def _send_command_to_vm(self, curr_vm, cmd): ...
 
-    def __init__(self):
+    def __init__(self, network_manager):
         self._uri = "qemu:///system"
         self._conn = None
         self._logger = None
@@ -66,16 +66,15 @@ class VMManager():
         self._running_vms = []
         self._stopped_vms = []
         self._distro_manager = DistroManager()
-        self._network_manager = NetworkManager()
+        self.network_manager = network_manager
 
         count = 0
-
-        for d in os.listdir(f"{self._vm_location}/"):
-            vm_ip_port = self._network_manager.acquire_vm_port(d)
-            vm_tap_intf = self._network_manager.allocate_vm_tap_interface(d)
-            vm = VM(d, disk_location=f"{self._vm_location}/{d}/{d}.qcow2", tap_intf=vm_tap_intf,
-                    ip_address=f"192.168.100.{self._network_manager.ip_manager.acquire_ip()}",
-                    mac_address=self._network_manager.generate_mac())
+        for vm_name in os.listdir(f"{self._vm_location}/"):
+            vm_ip_port = self.network_manager.acquire_vm_port(vm_name)
+            vm_tap_intf = self.network_manager.allocate_vm_tap_interface(vm_name)
+            vm = VM(vm_name, disk_location=f"{self._vm_location}/{vm_name}/{vm_name}.qcow2", tap_intf=vm_tap_intf,
+                    ip_address=f"192.168.100.{self.network_manager.ip_manager.acquire_ip(vm_name)}",
+                    mac_address=self.network_manager.generate_mac())
             self._vms.append(vm)
             self._down_vms.append(vm)
 
@@ -176,10 +175,10 @@ class VMManager():
             wdf.write(data)
         os.chmod(f"{self._vm_location}/{vm_uuid}/meta-data", 0o644)
 
-        vm_ip_port = self._network_manager.acquire_vm_port(vm_uuid)
-        vm_tap_intf = self._network_manager.allocate_vm_tap_interface(vm_uuid)
-        vm_mac = f"{self._network_manager.generate_mac()}"
-        vm_ip = f"192.168.100.{self._network_manager.ip_manager.acquire_ip()}"
+        vm_ip_port = self.network_manager.acquire_vm_port(vm_uuid)
+        vm_tap_intf = self.network_manager.allocate_vm_tap_interface(vm_uuid)
+        vm_mac = f"{self.network_manager.generate_mac()}"
+        vm_ip = f"192.168.100.{self.network_manager.ip_manager.acquire_ip(vm_uuid)}"
 
         self.update_vm_cloud_init(vm_uuid, old_string="SSH_KEY",
             new_string=f"- {public_key_str}")
@@ -220,7 +219,7 @@ class VMManager():
             self._stopped_vms.append(curr_vm)
             self._running_vms.remove(curr_vm)
 
-        self._network_manager.deallocate_vm_tap_interface(curr_vm.name)
+        self.network_manager.deallocate_vm_tap_interface(curr_vm.name)
 
         shutil.rmtree(f"{self._vm_location}/{curr_vm.name}")
 
@@ -304,7 +303,7 @@ class VMManager():
             self._down_vms.append(curr_vm)
             self._live_vms.remove(curr_vm)
 
-            self._network_manager.release_vm_port(curr_vm.name)
+            self.network_manager.release_vm_port(curr_vm.name)
 
             if (curr_vm in self._running_vms):
                 self._running_vms.remove(curr_vm)
@@ -425,7 +424,7 @@ class VMManager():
                 if iface["name"] != "lo":
                     for addr in iface["ip-addresses"]:
                         if addr["ip-address-type"] == "ipv4" and addr["ip-address"].startswith("10"):
-                            return (addr["ip-address"], f"{self._network_manager.port_map[curr_vm.name]}")
+                            return (addr["ip-address"], f"{self.network_manager.port_map[curr_vm.name]}")
 
             sock.close()
         except Exception as e:

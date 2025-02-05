@@ -4,7 +4,6 @@ compute/__pycache__
 network/__pycache__
 storage/__pycache__
 
-compute/generated
-storage/generated
+*/generated
 
 IGS_venv

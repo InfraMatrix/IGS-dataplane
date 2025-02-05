@@ -13,6 +13,7 @@ import os
 import subprocess
 
 from .generated import compute_pb2, compute_pb2_grpc
+from network.generated import network_pb2, network_pb2_grpc
 
 from compute.vm_manager import VMManager
 
@@ -39,11 +40,11 @@ def pick_vm(stub=None, status=None, action=""):
 
     return (vm_num, vms[vm_num])
 
-def process_compute_command(cmd="", stub=None):
+def process_compute_command(cmd="", compute_stub=None, network_stub=None):
     print("")
     if (cmd == "1"):
         request = compute_pb2.CreateVMRequest()
-        response = stub.CreateVM(request)
+        response = compute_stub.CreateVM(request)
         if(response.vm_name == ""):
             print(f"Failed to create VM. You must first create the base ubuntu image in order to generate a VM based off of it.")
             print(f"Please follow the creating_base_ubuntu_image guide in the documentation.")
@@ -51,72 +52,72 @@ def process_compute_command(cmd="", stub=None):
             print(f"VM Created: {response.vm_name}")
 
     elif (cmd == "2"):
-        vm_num, vm_name = pick_vm(stub=stub, status=1, action="delete")
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=1, action="delete")
         if (vm_num == -1):
             return
 
         request = compute_pb2.DeleteVMRequest(vm_number=vm_num)
-        response = stub.DeleteVM(request)
+        response = compute_stub.DeleteVM(request)
 
         print(f"VM Deleted: {response.vm_name}")
 
     elif (cmd == "3"):
-        vm_num, vm_name = pick_vm(stub=stub, status=2, action="start")
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=2, action="start")
         if (vm_num == -1):
             return
 
         request = compute_pb2.StartVMRequest(vm_number=vm_num)
-        response = stub.StartVM(request)
+        response = compute_stub.StartVM(request)
 
         print(f"VM Started: {response.vm_name}")
 
     elif (cmd == "4"):
-        vm_num, vm_name = pick_vm(stub=stub, status=3, action="shut down")
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=3, action="shut down")
         if (vm_num == -1):
             return
 
         request = compute_pb2.ShutdownVMRequest(vm_number=vm_num)
-        response = stub.ShutdownVM(request)
+        response = compute_stub.ShutdownVM(request)
 
         print(f"VM Shut Down: {response.vm_name}")
 
     elif (cmd == "5"):
-        vm_num, vm_name = pick_vm(stub=stub, status=4, action="resume")
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=4, action="resume")
         if (vm_num == -1):
             return
 
         request = compute_pb2.ResumeVMRequest(vm_number=vm_num)
-        response = stub.ResumeVM(request)
+        response = compute_stub.ResumeVM(request)
 
         print(f"VM Resumed: {response.vm_name}")
 
     elif (cmd == "6"):
-        vm_num, vm_name = pick_vm(stub=stub, status=5, action="stop")
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="stop")
         if (vm_num == -1):
             return
 
         request = compute_pb2.StopVMRequest(vm_number=vm_num)
-        response = stub.StopVM(request)
+        response = compute_stub.StopVM(request)
 
         print(f"VM Stopped: {response.vm_name}")
 
     elif (cmd == "7"):
-        vm_num, vm_name = pick_vm(stub=stub, status=5, action="monitor its status")
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="monitor its status")
         if (vm_num == -1):
             return
 
         request = compute_pb2.GetVMStatusRequest(vm_number=vm_num)
-        response = stub.GetVMStatus(request)
+        response = compute_stub.GetVMStatus(request)
 
         print(f"VM Status: {response.vm_status}")
 
     elif (cmd == "8"):
-        vm_num, vm_name = pick_vm(stub=stub, status=5, action="connect to over serial")
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="connect to over serial")
         if (vm_num == -1):
             return
 
         request = compute_pb2.StartPTYConnectionRequest(vm_number=vm_num)
-        response = stub.StartPTYConnection(request)
+        response = compute_stub.StartPTYConnection(request)
 
         print("Connecting to server\n")
 
@@ -152,25 +153,23 @@ def process_compute_command(cmd="", stub=None):
 
         client.close()
 
-        """elif (cmd == "9"):
-        vm_num, vm_name = pick_vm(stub=stub, status=5, action="connect to over SSH")
+    elif (cmd == "9"):
+        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="connect to over SSH")
         if (vm_num == -1):
             return
 
-        request = compute_pb2.GetVMIPRequest(vm_number=vm_num)
-        response = stub.GetVMIP(request)
+        request = network_pb2.GetVMIPRequest(vm_name=vm_name)
+        response = network_stub.GetVMIP(request)
         vm_ip = response.vm_ip_addr
-        vm_port = response.vm_ip_port
 
         ssh_command = [
             "sudo", "ssh",
             "-i", f"/IGS/compute/vms/{vm_name}/id_rsa",
             "-o", "StrictHostKeyChecking=no",
-            "-p", f"{vm_port}",
-            f"ubuntu@localhost"
+            f"ubuntu@{vm_ip}"
         ]
         print("Run the following command in another shell or this one after exiting the dataplane client:\n")
-        print(' '.join(ssh_command))"""
+        print(' '.join(ssh_command))
 
     else:
         print("Exiting")
@@ -178,8 +177,10 @@ def process_compute_command(cmd="", stub=None):
 class VMMServicer(compute_pb2_grpc.vmmServicer):
 
     def __init__(self):
-        self.vm_manager = VMManager()
         self.server_socket = None
+
+    def setup_vm_manager(self, network_manager):
+        self.vm_manager = VMManager(network_manager=network_manager)
 
     def GetVMS(self, request, context):
         response = self.vm_manager.get_vms(request.status)
@@ -262,7 +263,3 @@ class VMMServicer(compute_pb2_grpc.vmmServicer):
 
         return compute_pb2.StartPTYConnectionResponse(vm_number=request.vm_number)
 
-    def GetVMIP(self, request, context):
-        vm_name = self.vm_manager.get_vms(3)[request.vm_number]
-        response = self.vm_manager.get_vm_link(vm_num=request.vm_number)
-        return compute_pb2.GetVMIPResponse(vm_ip_addr=response[0], vm_ip_port=response[1])

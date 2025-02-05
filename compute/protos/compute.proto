@@ -16,7 +16,6 @@ service vmm {
   rpc ResumeVM(ResumeVMRequest) returns (ResumeVMResponse);
   rpc StopVM(StopVMRequest) returns (StopVMResponse);
   rpc GetVMStatus(GetVMStatusRequest) returns (GetVMStatusResponse);
-  rpc GetVMIP(GetVMIPRequest) returns (GetVMIPResponse);
   rpc StartPTYConnection (StartPTYConnectionRequest) returns (StartPTYConnectionResponse);
 
 }
@@ -73,15 +72,6 @@ message GetVMStatusRequest {
 }
 message GetVMStatusResponse {
   string vm_status = 1;
-}
-
-message GetVMIPRequest {
-  int64 vm_number = 1;
-}
-message GetVMIPResponse {
-  string vm_ip_addr = 1;
-  string vm_ip_port = 2;
-
 }
 
 message StartPTYConnectionRequest {

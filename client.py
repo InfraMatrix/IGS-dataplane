@@ -9,6 +9,8 @@ import sys
 
 from compute import compute
 
+from network import network
+
 from storage import storage
 
 def print_subsytems():
@@ -25,7 +27,10 @@ def print_compute_commands():
     print("Press 6 to stop a VM")
     print("Press 7 to get a VM's status")
     print("Press 8 to connect to a VM over serial")
-    #print("Press 9 to connect to a VM over SSH")
+    print("Press 9 to connect to a VM over SSH")
+
+def print_network_commands():
+    print("\nThere are currently no network commands")
 
 def print_storage_commands():
     print("\nPress 1 to get system disks")
@@ -34,7 +39,7 @@ def print_storage_commands():
     print("Press 4 to attach a disk partition to a vm")
     print("Press 5 to detach a disk partition from a vm")
 
-def dataplane_shell(compute_stub=None, storage_stub=None):
+def dataplane_shell(compute_stub=None, network_stub=None, storage_stub=None):
     print("\nWelcome to the dataplane shell\n")
 
     while(True):
@@ -43,9 +48,12 @@ def dataplane_shell(compute_stub=None, storage_stub=None):
         if (subsystem == "1"):
             print_compute_commands()
             command = input("\n")
-            compute.process_compute_command(command, compute_stub)
+            compute.process_compute_command(command, compute_stub, network_stub)
 
         elif (subsystem == "2"):
+            print_network_commands()
+
+        elif (subsystem == "3"):
             print_storage_commands()
             command = input("\n")
             storage.process_storage_command(command, storage_stub, compute_stub)
@@ -55,9 +63,10 @@ def dataplane_shell(compute_stub=None, storage_stub=None):
 
 def main():
     channel = grpc.insecure_channel('localhost:50051')
-    vmm_stub = compute.compute_pb2_grpc.vmmStub(channel)
+    compute_stub = compute.compute_pb2_grpc.vmmStub(channel)
+    network_stub = network.network_pb2_grpc.nmStub(channel)
     storage_stub = storage.storage_pb2_grpc.smStub(channel)
-    dataplane_shell(vmm_stub, storage_stub)
+    dataplane_shell(compute_stub, network_stub, storage_stub)
 
 if __name__ == '__main__':
     main()

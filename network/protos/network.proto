@@ -1,0 +1,18 @@
+// Copyright © 2025 InfraMatrix. All Rights Reserved.
+
+// SPDX-License-Identifier: BSD-3-Clause
+
+syntax = "proto3";
+
+package network;
+
+service nm {
+  rpc GetVMIP(GetVMIPRequest) returns (GetVMIPResponse);
+}
+
+message GetVMIPRequest {
+  string vm_name = 1;
+}
+message GetVMIPResponse {
+  string vm_ip_addr = 1;
+}
