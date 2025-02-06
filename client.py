@@ -15,8 +15,9 @@ from storage import storage
 
 def print_subsytems():
     print("\nPress 1 to invoke compute subsystem")
-    print("Press 2 to invoke storage subsystem")
-    print("Press 3 to exit the dataplane")
+    print("Press 2 to invoke network subsystem")
+    print("Press 3 to invoke storage subsystem")
+    print("Press 4 to exit the dataplane")
 
 def print_compute_commands():
     print("\nPress 1 to create a VM")
