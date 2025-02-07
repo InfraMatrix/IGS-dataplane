@@ -8,6 +8,7 @@ from pyroute2 import IPRoute
 import subprocess
 import sys
 import random
+import yaml
 
 from network.ip_manager import IPManager
 
@@ -100,6 +101,21 @@ class NetworkManager:
 
         create_tap_cmd = ["ip", "tuntap", "del", "dev", tap_name, "mode", "tap"]
         run_network_cmd(create_tap_cmd)
+
+    def get_vm_mac(self, vm_name):
+        try:
+            with open(f"/IGS/compute/vms/{vm_name}/user-data", 'r') as f:
+                config = yaml.safe_load(f)
+
+            for wf in config.get('write_files', []):
+                if wf.get('path') == "/etc/netplan/99-netcfg.yaml":
+                    netplan_content = yaml.safe_load(wf['content'])
+                    interfaces = netplan_content.get('network', {}).get('ethernets', {})
+                    for interface in interfaces.values():
+                        if 'match' in interface and 'macaddress' in interface['match']:
+                            return interface['match']['macaddress']
+        except Exception as e:
+            return ""
 
     def get_vm_ip(self, vm_name):
         vm_ip = self.ip_manager.get_vm_ip(vm_name=vm_name)

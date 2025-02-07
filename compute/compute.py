@@ -157,11 +157,9 @@ def process_compute_command(cmd="", compute_stub=None, network_stub=None):
         vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="connect to over SSH")
         if (vm_num == -1):
             return
-
         request = network_pb2.GetVMIPRequest(vm_name=vm_name)
         response = network_stub.GetVMIP(request)
         vm_ip = response.vm_ip_addr
-
         ssh_command = [
             "sudo", "ssh",
             "-i", f"/IGS/compute/vms/{vm_name}/id_rsa",

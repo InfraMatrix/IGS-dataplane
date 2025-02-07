@@ -72,9 +72,11 @@ class VMManager():
         for vm_name in os.listdir(f"{self._vm_location}/"):
             vm_ip_port = self.network_manager.acquire_vm_port(vm_name)
             vm_tap_intf = self.network_manager.allocate_vm_tap_interface(vm_name)
+            vm_ip = self.network_manager.get_vm_ip(vm_name)
+            vm_mac_addr = self.network_manager.get_vm_mac(vm_name)
             vm = VM(vm_name, disk_location=f"{self._vm_location}/{vm_name}/{vm_name}.qcow2", tap_intf=vm_tap_intf,
-                    ip_address=f"192.168.100.{self.network_manager.ip_manager.acquire_ip(vm_name)}",
-                    mac_address=self.network_manager.generate_mac())
+                    ip_address=vm_ip,
+                    mac_address=vm_mac_addr)
             self._vms.append(vm)
             self._down_vms.append(vm)
 
