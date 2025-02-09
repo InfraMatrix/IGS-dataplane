@@ -26,6 +26,7 @@ install_python_dependencies()
     sudo systemctl enable openvswitch-switch.service
 
     pip3 install \
+    pytest \
     grpcio-tools \
     grpcio \
     libvirt-python \
