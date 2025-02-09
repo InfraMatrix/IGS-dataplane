@@ -38,16 +38,6 @@ class DistroManager:
         print(f"Downloading Ubuntu {version} iso from {iso_url}")
         print(f"Please wait...\n")
 
-        #response = requests.get(iso_url, stream=True, verify=True)
-        #tsize = int(response.headers.get('content-length', 0))
-        #bsize = 1024 ** 2
-
-        #with open(iso_path, 'wb') as f:
-        #    with tqdm(total=tsize, unit='B', unit_scale=True) as pbar:
-        #        for data in response.iter_content(bsize):
-        #            f.write(data)
-        #            pbar.update(len(data))
-
         subprocess.run([
             'curl', '-L', '-o', iso_path,
             '--progress-bar',
@@ -60,7 +50,6 @@ class DistroManager:
         #self.download_ubuntu_iso(version=version)
 
         if os.path.exists(f"{self.image_location}/ubuntu_{version}_base.qcow2"):
-            print("Found Ubuntu image\n")
             return 0
 
         #self.generate_ubuntu_image(version=version)

@@ -197,7 +197,9 @@ class VMManager():
             "-joliet", "-rock",
             "-input-charset", "utf-8",
             f"{self._vm_location}/{vm_uuid}/user-data",
-            f"{self._vm_location}/{vm_uuid}/meta-data"])
+            f"{self._vm_location}/{vm_uuid}/meta-data"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL)
 
         new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf,
             ip_address=vm_ip, mac_address=vm_mac)
@@ -384,9 +386,8 @@ class VMManager():
             result = subprocess.run(
                 copy_image_cmd,
                 check = True,
-                capture_output = True,
-                text = True
-            )
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL)
         except Exception as e:
             print(f"Failed to create vm disk: {e}")
 
