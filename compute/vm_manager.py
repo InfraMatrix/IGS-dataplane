@@ -60,6 +60,7 @@ class VMManager():
         self._conn = None
         self._logger = None
         self._vm_location = "/IGS/compute/vms"
+        self.vms = {}
         self._vms     = []
         self._live_vms = []
         self._down_vms = []
@@ -77,6 +78,7 @@ class VMManager():
             vm = VM(vm_name, disk_location=f"{self._vm_location}/{vm_name}/{vm_name}.qcow2", tap_intf=vm_tap_intf,
                     ip_address=vm_ip,
                     mac_address=vm_mac_addr)
+            self.vms[vm_name] = {"instance": vm, "status": "down"}
             self._vms.append(vm)
             self._down_vms.append(vm)
 
