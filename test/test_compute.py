@@ -37,7 +37,7 @@ def create_vm_helper():
 def delete_vm_helper(vm_name):
     global vm_manager
     vms = vm_manager.get_vms(status=1)
-    vm_manager.delete_vm(vm_num=0)
+    vm_manager.delete_vm(vm_name=vm_name)
     vms = vm_manager.get_vms(status=1)
     assert len(vms) == 0
 

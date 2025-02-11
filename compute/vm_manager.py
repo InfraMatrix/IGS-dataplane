@@ -60,27 +60,19 @@ class VMManager():
         self._conn = None
         self._logger = None
         self._vm_location = "/IGS/compute/vms"
-        self.vms = {}
-        self._vms     = []
-        self._live_vms = []
-        self._down_vms = []
-        self._running_vms = []
-        self._stopped_vms = []
+        self._vms = {}
         self._distro_manager = DistroManager()
         self.network_manager = network_manager
 
         count = 0
         for vm_name in os.listdir(f"{self._vm_location}/"):
-            vm_ip_port = self.network_manager.acquire_vm_port(vm_name)
             vm_tap_intf = self.network_manager.allocate_vm_tap_interface(vm_name)
             vm_ip = self.network_manager.get_vm_ip(vm_name)
             vm_mac_addr = self.network_manager.get_vm_mac(vm_name)
             vm = VM(vm_name, disk_location=f"{self._vm_location}/{vm_name}/{vm_name}.qcow2", tap_intf=vm_tap_intf,
                     ip_address=vm_ip,
                     mac_address=vm_mac_addr)
-            self.vms[vm_name] = {"instance": vm, "status": "down"}
-            self._vms.append(vm)
-            self._down_vms.append(vm)
+            self._vms[vm_name] = {"instance": vm, "status": "down"}
 
             count += 1
 
@@ -98,31 +90,17 @@ class VMManager():
             print(f'Connection error: {e}', file=sys.stderr)
             return False
 
-    def get_vms(self, status=None):
+    def get_vms(self, status=""):
         vm_names = []
-        vms = None
-        if (status == 1):
-            vms = self._vms
 
-        elif (status == 2):
-            vms = self._down_vms
-
-        elif (status == 3):
-            vms = self._live_vms
-
-        elif (status == 4):
-            vms = self._stopped_vms
-
-        elif (status == 5):
-            vms = self._running_vms
-
-        for i in vms:
-            vm_names.append(i.name)
+        for vm, vm_dict in self._vms.items():
+            if (status == "all" or status == vm_dict["status"]):
+                vm_names.append(vm)
 
         return vm_names
     
-    def get_vm_pty_file(self, vm_num=-1):
-        return self._running_vms[vm_num].serial_conn
+    def get_vm_pty_file(self, vm_name=""):
+        return self._vms[vm_name]["instance"].serial_conn
     
     def create_vm(self):
         ret = self._distro_manager.verify_ubuntu_image()
@@ -179,7 +157,6 @@ class VMManager():
             wdf.write(data)
         os.chmod(f"{self._vm_location}/{vm_uuid}/meta-data", 0o644)
 
-        vm_ip_port = self.network_manager.acquire_vm_port(vm_uuid)
         vm_tap_intf = self.network_manager.allocate_vm_tap_interface(vm_uuid)
         vm_mac = f"{self.network_manager.generate_mac()}"
         vm_ip = f"192.168.100.{self.network_manager.ip_manager.acquire_ip(vm_uuid)}"
@@ -206,57 +183,42 @@ class VMManager():
         new_vm = VM(vm_uuid, disk_location=vm_path+"/{vm_uuid}.qcow2", tap_intf=vm_tap_intf,
             ip_address=vm_ip, mac_address=vm_mac)
 
-        self._vms.append(new_vm)
-        self._down_vms.append(new_vm)
+        self._vms[vm_uuid] = {"instance": new_vm, "status": "down"}
 
         return vm_uuid
 
-    def delete_vm(self, vm_num=-1):
-        curr_vm = self._vms[vm_num]
-        if (curr_vm in self._stopped_vms):
-            self._send_command_to_vm(curr_vm, "cont")
+    def delete_vm(self, vm_name=""):
+        curr_vm = self._vms.get(vm_name)
+        if (curr_vm == None):
+            return
 
-            self._running_vms.append(curr_vm)
-            self._stopped_vms.remove(curr_vm)
+        if (curr_vm["status"] != "down"):
+            pass
 
-        if (curr_vm in self._running_vms):
-            self._send_command_to_vm(curr_vm, "system_powerdown")
+        self.network_manager.deallocate_vm_tap_interface(vm_name)
 
-            self._stopped_vms.append(curr_vm)
-            self._running_vms.remove(curr_vm)
+        shutil.rmtree(f"{self._vm_location}/{vm_name}")
 
-        self.network_manager.deallocate_vm_tap_interface(curr_vm.name)
+        del self._vms[vm_name]
 
-        shutil.rmtree(f"{self._vm_location}/{curr_vm.name}")
+        return vm_name
 
-        if (curr_vm in self._live_vms):
-            self._live_vms.remove(curr_vm)
-
-        if (curr_vm in self._stopped_vms):
-            self._stopped_vms.remove(curr_vm)
-
-        if (curr_vm in self._down_vms):
-            self._down_vms.remove(curr_vm)
-
-        self._vms.remove(curr_vm)
-
-        return curr_vm.name
-
-    def start_vm(self, vm_num=-1):
-        num_vms = len(self._down_vms)
-        curr_vm = self._down_vms[vm_num]
-
+    def start_vm(self, vm_name=""):
+        vm_dict = self._vms.get(vm_name)
+        if (vm_dict == None):
+            return ""
+        curr_vm = vm_dict["instance"]
         try:
             run_vm_cmd = [
                 "qemu-system-x86_64",
                 "-nographic",
                 "-serial", "pty",
-                "-monitor", f"unix:/tmp/{curr_vm.name}.sock,server,nowait",
+                "-monitor", f"unix:/tmp/{vm_name}.sock,server,nowait",
                 "-device", "virtio-serial-pci",
-                "-chardev", f"socket,id=ch0,path=/tmp/{curr_vm.name}_qga.sock,server=on,wait=off",
+                "-chardev", f"socket,id=ch0,path=/tmp/{vm_name}_qga.sock,server=on,wait=off",
                 "-device", "virtserialport,chardev=ch0,name=org.qemu.guest_agent.0",
-                "-readconfig", f"{self._vm_location}/{curr_vm.name}/{curr_vm.name}.conf",
-                "-drive", f"file={self._vm_location}/{curr_vm.name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
+                "-readconfig", f"{self._vm_location}/{vm_name}/{vm_name}.conf",
+                "-drive", f"file={self._vm_location}/{vm_name}/cloud-init.iso,format=raw,if=virtio,media=cdrom",
                 "-netdev", f"tap,id={curr_vm.tap_intf},ifname={curr_vm.tap_intf},script=no,downscript=no",
                 "-device", f"virtio-net-pci,netdev={curr_vm.tap_intf},mac={curr_vm.mac_address}",
             ]
@@ -285,72 +247,56 @@ class VMManager():
             time.sleep(2.0)
 
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.connect(f"/tmp/{curr_vm.name}.sock")
+            sock.connect(f"/tmp/{vm_name}.sock")
 
             curr_vm.hv_conn = sock
             curr_vm.serial_conn = serial_port
 
-            self._live_vms.append(curr_vm)
-            self._running_vms.append(curr_vm)
-            self._down_vms.remove(curr_vm)
-
-            return curr_vm.name
-
+            self._vms[vm_name]["status"] = "running"
         except Exception as e:
             print(f"Failed to start vm: {e}")
 
-    def shutdown_vm(self, vm_num=-1):
-        num_vms = len(self._live_vms)
-        curr_vm = self._live_vms[vm_num]
+        return vm_name
 
+    def shutdown_vm(self, vm_name=""):
+        vm_dict = self._vms.get(vm_name)
+        if (vm_dict == None or vm_dict["status"] != "running"):
+            return ""
+        curr_vm = vm_dict["instance"]
         try:
             self._send_command_to_vm(curr_vm, "system_powerdown")
-
-            self._down_vms.append(curr_vm)
-            self._live_vms.remove(curr_vm)
-
-            self.network_manager.release_vm_port(curr_vm.name)
-
-            if (curr_vm in self._running_vms):
-                self._running_vms.remove(curr_vm)
-
-            if (curr_vm in self._stopped_vms):
-                self._stopped_vms.remove(curr_vm)
-
+            #self.network_manager.release_vm_port(vm_name)
+            print(vm_dict)
+            vm_dict["status"] = "down"
         except Exception as e:
+            print(f"Failed to shutdown vm: {e}")
 
-            print(f"Failed to start vm: {e}")
+        return vm_name
 
-        return curr_vm.name
-
-    def resume_vm(self, vm_num=-1):
-        num_vms = len(self._stopped_vms)
-        curr_vm = self._stopped_vms[vm_num]
-
+    def resume_vm(self, vm_name=""):
+        vm_dict = self._vms.get(vm_name)
+        if (vm_dict == None or vm_dict["status"] != "stopped"):
+            return ""
+        curr_vm = vm_dict["instance"]
         try:
             self._send_command_to_vm(curr_vm, "cont")
-
+            vm_dict["status"] = "running"
         except Exception as e:
             print(f"Failed to start vm: {e}")
-            self._running_vms.append(curr_vm)
-            self._stopped_vms.remove(curr_vm)
 
-        return curr_vm.name
+        return vm_name
 
-    def stop_vm(self, vm_num=-1):
-        num_vms = len(self._running_vms)
-        curr_vm = self._running_vms[vm_num]
-
+    def stop_vm(self, vm_name=""):
+        vm_dict = self._vms.get(vm_name)
+        if (vm_dict == None or vm_dict["status"] != "running"):
+            return ""
+        curr_vm = vm_dict["instance"]
         try:
             self._send_command_to_vm(curr_vm, "stop")
-
         except Exception as e:
             print(f"Failed to start vm: {e}")
 
-        self._stopped_vms.append(curr_vm)
-        self._running_vms.remove(curr_vm)
-
-        return curr_vm.name
+        return vm_name
 
     def _send_command_to_vm(self, curr_vm, cmd):
         sock = curr_vm.hv_conn
@@ -404,8 +350,11 @@ class VMManager():
         except Exception as e:
             print(f"Failed to open instance config file: {e}")
 
-    def get_vm_status(self, vm_num=-1):
-        curr_vm = self._live_vms[vm_num]
+    def get_vm_status(self, vm_name=-1):
+        vm_dict = self._vms.get(vm_name)
+        if (vm_dict == None or vm_dict["status"] != "stopped"):
+            return ""
+        curr_vm = vm_dict["instance"]
         try:
             cmd_output = self._send_command_to_vm(curr_vm, "info status")
             status = re.search(r"VM status: (\w+)", cmd_output).group(1)
@@ -413,10 +362,13 @@ class VMManager():
             print(f"Failed to start vm: {e}")
         return status
 
-    def get_vm_link(self, vm_num=-1):
-        curr_vm = self._live_vms[vm_num]
+    def get_vm_link(self, vm_name=-1):
+        vm_dict = self._vms.get(vm_name)
+        if (vm_dict == None):
+            return ""
+        curr_vm = vm_dict["instance"]
 
-        socket_path = f"/tmp/{curr_vm.name}_qga.sock"
+        socket_path = f"/tmp/{vm_name}_qga.sock"
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
             sock.connect(socket_path)
@@ -429,8 +381,7 @@ class VMManager():
                 if iface["name"] != "lo":
                     for addr in iface["ip-addresses"]:
                         if addr["ip-address-type"] == "ipv4" and addr["ip-address"].startswith("10"):
-                            return (addr["ip-address"], f"{self.network_manager.port_map[curr_vm.name]}")
-
+                            return (addr["ip-address"], f"{self.network_manager.port_map[vm_name]}")
             sock.close()
         except Exception as e:
             print(f"Failed to get VM IP: {e}")

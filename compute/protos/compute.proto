@@ -21,62 +21,63 @@ service vmm {
 }
 
 message GetVMSRequest {
-  int64 status = 1;
+  string status = 1;
 }
 message GetVMSResponse {
     repeated string vm_names = 1;
 }
 
-message CreateVMRequest {}
+message CreateVMRequest {
+}
 message CreateVMResponse {
   string vm_name = 1;
 }
 
 message DeleteVMRequest {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }
 message DeleteVMResponse {
   string vm_name = 1;
 }
 
 message StartVMRequest {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }
 message StartVMResponse {
   string vm_name = 1;
 }
 
 message ShutdownVMRequest {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }
 message ShutdownVMResponse {
   string vm_name = 1;
 }
 
 message ResumeVMRequest {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }
 message ResumeVMResponse {
   string vm_name = 1;
 }
 
 message StopVMRequest {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }
 message StopVMResponse {
   string vm_name = 1;
 }
 
 message GetVMStatusRequest {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }
 message GetVMStatusResponse {
   string vm_status = 1;
 }
 
 message StartPTYConnectionRequest {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }
 message StartPTYConnectionResponse {
-  int64 vm_number = 1;
+  string vm_name = 1;
 }

@@ -59,7 +59,7 @@ def dataplane_shell(compute_stub=None, network_stub=None, storage_stub=None):
             command = input("\n")
             storage.process_storage_command(command, storage_stub, compute_stub)
 
-        elif (subsystem == "3"):
+        elif (subsystem == "4"):
             exit()
 
 def main():

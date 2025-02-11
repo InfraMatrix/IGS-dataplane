@@ -21,24 +21,24 @@ def pick_vm(stub=None, status=None, action=""):
     request = compute_pb2.GetVMSRequest(status=status)
     response = stub.GetVMS(request)
 
-    vms = response.vm_names
-    num_vms = len(vms)
+    vm_names = response.vm_names
+    num_vms = len(vm_names)
     if (num_vms == 0):
         print(f"No VMs to {action}")
-        return -1
+        return ""
 
     vm_num = -1
     while (vm_num < 0 or vm_num > num_vms):
         print(f"Input the VM that you want to {action}:")
 
         for i in range(1, num_vms + 1):
-            print(f"{i}: {vms[i-1]}")
+            print(f"{i}: {vm_names[i-1]}")
 
         vm_num = int(input("\n")) - 1
 
         print("")
 
-    return (vm_num, vms[vm_num])
+    return vm_names[vm_num]
 
 def process_compute_command(cmd="", compute_stub=None, network_stub=None):
     print("")
@@ -52,71 +52,71 @@ def process_compute_command(cmd="", compute_stub=None, network_stub=None):
             print(f"VM Created: {response.vm_name}")
 
     elif (cmd == "2"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=1, action="delete")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status="all", action="delete")
+        if (vm_name == ""):
             return
 
-        request = compute_pb2.DeleteVMRequest(vm_number=vm_num)
+        request = compute_pb2.DeleteVMRequest(vm_name=vm_name)
         response = compute_stub.DeleteVM(request)
 
         print(f"VM Deleted: {response.vm_name}")
 
     elif (cmd == "3"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=2, action="start")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status="down", action="start")
+        if (vm_name == ""):
             return
 
-        request = compute_pb2.StartVMRequest(vm_number=vm_num)
+        request = compute_pb2.StartVMRequest(vm_name=vm_name)
         response = compute_stub.StartVM(request)
 
         print(f"VM Started: {response.vm_name}")
 
     elif (cmd == "4"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=3, action="shut down")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status="running", action="shut down")
+        if (vm_name == ""):
             return
 
-        request = compute_pb2.ShutdownVMRequest(vm_number=vm_num)
+        request = compute_pb2.ShutdownVMRequest(vm_name=vm_name)
         response = compute_stub.ShutdownVM(request)
 
         print(f"VM Shut Down: {response.vm_name}")
 
     elif (cmd == "5"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=4, action="resume")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status="stopped", action="resume")
+        if (vm_name == -1):
             return
 
-        request = compute_pb2.ResumeVMRequest(vm_number=vm_num)
+        request = compute_pb2.ResumeVMRequest(vm_name=vm_name)
         response = compute_stub.ResumeVM(request)
 
         print(f"VM Resumed: {response.vm_name}")
 
     elif (cmd == "6"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="stop")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status="running", action="stop")
+        if (vm_name == ""):
             return
 
-        request = compute_pb2.StopVMRequest(vm_number=vm_num)
+        request = compute_pb2.StopVMRequest(vm_name=vm_name)
         response = compute_stub.StopVM(request)
 
         print(f"VM Stopped: {response.vm_name}")
 
     elif (cmd == "7"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="monitor its status")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status="all", action="monitor its status")
+        if (vm_name == ""):
             return
 
-        request = compute_pb2.GetVMStatusRequest(vm_number=vm_num)
+        request = compute_pb2.GetVMStatusRequest(vm_name=vm_name)
         response = compute_stub.GetVMStatus(request)
 
         print(f"VM Status: {response.vm_status}")
 
     elif (cmd == "8"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="connect to over serial")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status="running", action="connect to over serial")
+        if (vm_name == ""):
             return
 
-        request = compute_pb2.StartPTYConnectionRequest(vm_number=vm_num)
+        request = compute_pb2.StartPTYConnectionRequest(vm_name=vm_name)
         response = compute_stub.StartPTYConnection(request)
 
         print("Connecting to server\n")
@@ -144,18 +144,18 @@ def process_compute_command(cmd="", compute_stub=None, network_stub=None):
                         data = client.recv(1024)
                         if data:
                             sys.stdout.buffer.write(data)
-
                         sys.stdout.buffer.flush()
 
             except KeyboardInterrupt:
                 client.send(b"exit\n\n")
+                print("\n")
                 continue_processing = False
 
         client.close()
 
     elif (cmd == "9"):
-        vm_num, vm_name = pick_vm(stub=compute_stub, status=5, action="connect to over SSH")
-        if (vm_num == -1):
+        vm_name = pick_vm(stub=compute_stub, status=5, action="connect to over SSH")
+        if (vm_name == ""):
             return
         request = network_pb2.GetVMIPRequest(vm_name=vm_name)
         response = network_stub.GetVMIP(request)
@@ -189,33 +189,27 @@ class VMMServicer(compute_pb2_grpc.vmmServicer):
         return compute_pb2.CreateVMResponse(vm_name=response)
 
     def DeleteVM(self, request, context):
-        vm_name = self.vm_manager.get_vms(1)[request.vm_number]
-        response = self.vm_manager.delete_vm(vm_num=request.vm_number)
-        return compute_pb2.DeleteVMResponse(vm_name=vm_name)
+        response = self.vm_manager.delete_vm(vm_name=request.vm_name)
+        return compute_pb2.DeleteVMResponse(vm_name=request.vm_name)
 
     def StartVM(self, request, context):
-        vm_name = self.vm_manager.get_vms(2)[request.vm_number]
-        response = self.vm_manager.start_vm(vm_num=request.vm_number)
-        return compute_pb2.StartVMResponse(vm_name=vm_name)
+        response = self.vm_manager.start_vm(vm_name=request.vm_name)
+        return compute_pb2.StartVMResponse(vm_name=request.vm_name)
 
     def ShutdownVM(self, request, context):
-        vm_name = self.vm_manager.get_vms(3)[request.vm_number]
-        response = self.vm_manager.shutdown_vm(vm_num=request.vm_number)
-        return compute_pb2.ShutdownVMResponse(vm_name=vm_name)
+        response = self.vm_manager.shutdown_vm(vm_name=request.vm_name)
+        return compute_pb2.ShutdownVMResponse(vm_name=request.vm_name)
 
     def ResumeVM(self, request, context):
-        vm_name = self.vm_manager.get_vms(4)[request.vm_number]
-        response = self.vm_manager.resume_vm(vm_num=request.vm_number)
-        return compute_pb2.ResumeVMResponse(vm_name=vm_name)
+        response = self.vm_manager.resume_vm(vm_name=request.vm_name)
+        return compute_pb2.ResumeVMResponse(vm_name=request.vm_name)
 
     def StopVM(self, request, context):
-        vm_name = self.vm_manager.get_vms(5)[request.vm_number]
-        response = self.vm_manager.stop_vm(vm_num=request.vm_number)
+        response = self.vm_manager.stop_vm(vm_name=request.vm_name)
         return compute_pb2.StopVMResponse(vm_name=response)
 
     def GetVMStatus(self, request, context):
-        vm_name = self.vm_manager.get_vms(3)[request.vm_number]
-        response = self.vm_manager.get_vm_status(vm_num=request.vm_number)
+        response = self.vm_manager.get_vm_status(vm_name=request.vm_name)
         return compute_pb2.GetVMStatusResponse(vm_status=response)
 
     def run_pty_connection(self, client, pty_path):
@@ -236,7 +230,7 @@ class VMMServicer(compute_pb2_grpc.vmmServicer):
                 break
 
     def StartPTYConnection(self, request, context):
-        vm_conn = self.vm_manager._running_vms[request.vm_number]
+        vm_conn = self.vm_manager._vms[request.vm_name]["instance"]
 
         def pty_server():
             if (self.server_socket== None):
@@ -259,5 +253,5 @@ class VMMServicer(compute_pb2_grpc.vmmServicer):
         thread.daemon = True
         thread.start()
 
-        return compute_pb2.StartPTYConnectionResponse(vm_number=request.vm_number)
+        return compute_pb2.StartPTYConnectionResponse(vm_name=request.vm_name)
 
