@@ -265,7 +265,6 @@ class VMManager():
         curr_vm = vm_dict["instance"]
         try:
             self._send_command_to_vm(curr_vm, "system_powerdown")
-            #self.network_manager.release_vm_port(vm_name)
             print(vm_dict)
             vm_dict["status"] = "down"
         except Exception as e:

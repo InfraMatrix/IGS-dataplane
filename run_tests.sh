@@ -6,7 +6,7 @@
 
 main()
 {
-    sudo ./IGS_venv/bin/python3 -m pytest test
+    sudo ./IGS_venv/bin/python3 -m pytest -s -v test
 }
 
 main

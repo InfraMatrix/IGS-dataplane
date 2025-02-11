@@ -35,7 +35,8 @@ install_python_dependencies()
     pyroute2 \
     pyparted \
     pyyaml \
-    cryptography
+    cryptography \
+    psutil
 
     deactivate
 }
