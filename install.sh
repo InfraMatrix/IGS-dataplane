@@ -4,9 +4,17 @@
 
 # SPDX-License-Identifier: BSD-3-Clause
 
-install_python_dependencies()
+install_dependencies()
 {
-    sudo apt-get install -y \
+    if ! dpkg -l | grep -q "grafana"; then
+        echo "Setting up grafana repo\n"
+        sudo mkdir -p /etc/apt/keyrings/
+        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | \
+        sudo tee -a /etc/apt/sources.list.d/grafana.list
+    fi
+
+    sudo apt-get update && sudo apt-get install -y \
     python3-full \
     python3-pip \
     python3-dev \
@@ -16,7 +24,12 @@ install_python_dependencies()
     libvirt-daemon-system > /dev/null \
     genisoimage \
     openvswitch-switch \
-    openvswitch-common
+    openvswitch-common \
+    apt-transport-https \
+    software-properties-common \
+    wget \
+    prometheus \
+    grafana
 
     python3 -m venv IGS_venv
     source IGS_venv/bin/activate
@@ -24,6 +37,8 @@ install_python_dependencies()
     sudo systemctl start libvirtd
     sudo systemctl enable libvirtd
     sudo systemctl enable openvswitch-switch.service
+    sudo systemctl start prometheus
+    sudo systemctl enable prometheus
 
     pip3 install \
     pytest \
@@ -71,16 +86,13 @@ create_IGS_directories()
 
 main()
 {
-    printf "\nInstalling python dependencies. Please be patient. This may take a while...\n"
-
-    install_python_dependencies
+    printf "\nInstalling system dependencies. Please be patient. This may take a while...\n"
+    install_dependencies
 
     printf "\nFinished installing python dependencies\n"
-
     generate_grpc_scripts
 
     printf "\nFinished generating messaging scripts\n"
-
     create_IGS_directories
 
     printf "\nFinished installing IGS\n\n"
