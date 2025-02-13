@@ -51,7 +51,8 @@ install_dependencies()
     pyparted \
     pyyaml \
     cryptography \
-    psutil
+    psutil \
+    prometheus_client
 
     deactivate
 }
