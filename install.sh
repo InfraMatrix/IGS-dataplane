@@ -37,8 +37,8 @@ install_dependencies()
     sudo systemctl start libvirtd
     sudo systemctl enable libvirtd
     sudo systemctl enable openvswitch-switch.service
-    sudo systemctl start prometheus
-    sudo systemctl enable prometheus
+    sudo systemctl stop prometheus
+    sudo systemctl disable prometheus
 
     pip3 install \
     pytest \
